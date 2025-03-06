@@ -19,6 +19,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Logging;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Vision;
 import frc.robot.util.Auto;
@@ -37,8 +38,8 @@ public class RobotContainer {
 	
     CommandJoystick joystick = new CommandJoystick(OperatorConstants.operatorControllerPort);
     CommandXboxController xboxController = new CommandXboxController(OperatorConstants.driverControllerPort);
-
     ControllerInput controller = new ControllerInput(xboxController, joystick);
+
     Vision visionSystem = new Vision(
         Constants.VisionConstants.ipAddress, 
         Constants.VisionConstants.CameraRotations, 
@@ -46,8 +47,7 @@ public class RobotContainer {
 
     public Swerve swerve = new Swerve(controller, visionSystem);
 
-
-    /*
+    /* 
     public Intake intake = new Intake();
     public IntakeControl intakeControl = new IntakeControl(intake);
     */
@@ -64,8 +64,10 @@ public class RobotContainer {
     public Climber climber = new Climber();
     public ClimberControl climberControl = new ClimberControl(climber);
 
-    Auto auto = new Auto(swerve, elevatorControl, clawControl, armControl);
     final AutoChooser autoChooser;
+    Auto auto = new Auto(swerve, elevatorControl, clawControl, armControl);
+
+    Logging logging = new Logging(swerve);
 
     /**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
