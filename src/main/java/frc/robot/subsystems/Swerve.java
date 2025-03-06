@@ -107,7 +107,10 @@ public class Swerve extends SubsystemBase {
 
         field.setRobotPose(currentPose);
 
-        // TODO add a timeout here or manual override to ensure setupComplete does not hold up entire robot
+        // force setupComplete to true after five seconds if not already true
+        if (((Timer.getTimestamp() - startTime) > 5) && (setupComplete == false)) {
+            setupComplete = true;
+        }
 
         // TODO maybe move this to constructor? or some other init function
         if (setupComplete) {
