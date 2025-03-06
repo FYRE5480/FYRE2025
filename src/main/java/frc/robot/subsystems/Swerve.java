@@ -247,6 +247,10 @@ public class Swerve extends SubsystemBase {
 
     public Pose2d getPose() {return currentPose;} 
 
+    public void setPose(Pose2d pose) {
+        currentPose = pose;
+    }
+
     public void resetGyro() {
         gyroAhrs.reset();
     }
