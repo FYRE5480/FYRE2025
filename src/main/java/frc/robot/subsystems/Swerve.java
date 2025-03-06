@@ -5,6 +5,8 @@ import java.util.concurrent.TimeUnit;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import frc.robot.util.Elastic;
+
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -106,6 +108,7 @@ public class Swerve extends SubsystemBase {
 
         // force setupComplete to true after five seconds if not already true
         if (((Timer.getTimestamp() - startTime) > 5) && (setupComplete == false)) {
+            Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Swerve Subsystem", "Swerve init forced complete after 5 seconds!"));
             setupComplete = true;
         }
 
@@ -216,6 +219,7 @@ public class Swerve extends SubsystemBase {
         }
 
         setupComplete = true;
+        Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.INFO, "Swerve Subsystem", "Swerve has been initialized!"));
         System.out.println("----------\nSetup Complete!\n----------");
         setSwerveEncoders(0);
         for (int i = 0; i < 4; i++) swerveModules[i].setSwerveReference(0);
