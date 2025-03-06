@@ -87,6 +87,10 @@ public class RobotContainer {
 
         autoChooser.select("FromMid");
 
+        SmartDashboard.putData(swerve);
+        SmartDashboard.putData(swerve.field);
+        SmartDashboard.putData(swerve.gyroAhrs);
+
         // Configure the trigger bindings
         configureBindings();
     }

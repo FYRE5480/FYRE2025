@@ -14,8 +14,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.util.ControllerInput;
@@ -29,12 +32,13 @@ public class Swerve extends SubsystemBase {
     private final ControllerInput controllerInput;
 
     private final Vision visionSystem; 
-    private final AHRS gyroAhrs;
+    public final AHRS gyroAhrs;
 
     private final SwerveModule[] swerveModules = new SwerveModule[4];
 
     private final SwerveDrivePoseEstimator poseEstimator;
     private Pose2d currentPose;
+    public Field2d field;
 
     private final PIDController xController = new PIDController(
         DriveConstants.xyP, DriveConstants.xyI, DriveConstants.xyD);
@@ -66,6 +70,7 @@ public class Swerve extends SubsystemBase {
 
         // TODO: change this dynamically depending on the starting pose of the robot
         this.currentPose = new Pose2d(5.7, 2.1, new Rotation2d(0));
+        this.field = new Field2d();
 
         // define the gyro
         gyroAhrs = new AHRS(NavXComType.kMXP_SPI);
@@ -96,6 +101,8 @@ public class Swerve extends SubsystemBase {
     public void periodic() {
         currentPose = poseEstimator.updateWithTime(
             startTime - Timer.getTimestamp(), gyroAhrs.getRotation2d(), getSwerveModulePositions());
+
+        field.setRobotPose(currentPose);
 
         // TODO add a timeout here or manual override to ensure setupComplete does not hold up entire robot
 
@@ -244,8 +251,31 @@ public class Swerve extends SubsystemBase {
 
     }
 
-    // =============== AUTO STUFF ==================== //
+    @Override
+    public void initSendable(SendableBuilder builder) {
 
+        SwerveModuleState[] states = getSwerveModuleStates();
+
+        builder.setSmartDashboardType("SwerveDrive");     
+
+        builder.addDoubleProperty("Front Left Angle", () -> states[0].angle.getDegrees(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> states[0].speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Front Right Angle", () -> states[1].angle.getDegrees(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> states[1].speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Back Left Angle", () -> states[2].angle.getDegrees(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> states[2].speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Back Right Angle", () -> states[3].angle.getDegrees(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> states[3].speedMetersPerSecond, null);
+
+        builder.addDoubleProperty("Robot Angle", () -> gyroAhrs.getRotation2d().getDegrees(), null);
+
+    }
+
+
+    // =============== AUTO STUFF ==================== //
 
     /**
      * Compiles and drives a ChassisSpeeds object from a given SwerveSample along the trajectory.
