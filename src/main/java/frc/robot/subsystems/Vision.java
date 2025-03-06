@@ -192,6 +192,7 @@ public class Vision {
      * @param tagId - the apriltag ID to search for, null if no preference
      * @return speeds - the ChassisSpeeds object for the robot to take
      */
+    
     public ChassisSpeeds getTagDrive(int camIndex, String[] tagIds, Side side, double cameraHorizontalAngle, double xOffset, double yOffset, PIDController turnPIDArg) {
         // The position is returned as a 3 element array of doubles in the form [x, y, z]
         // The position is in meters.
@@ -201,21 +202,26 @@ public class Vision {
         else tag = decideTag(camIndex);        
         if(tag == null)return null;
 
+        // tag.horizontalAngle, tag orientation needs to be negated in every instance
+
+        double horizontalAngle = -tag.horizontalAngle;
+        double tagAngle = -tag.orientation[1];
+
 
         double e; 
         if (yOffset == 0) e = -Math.PI/2;
-        else e = Math.atan(-xOffset/(yOffset)) + (Math.PI * (Math.signum(yOffset)-1)/2);
+        else e = Math.atan(-xOffset/yOffset) + (Math.PI * (Math.signum(yOffset)-1)/2);
         double f = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
 
-        double xDist = tag.distance * Math.sin(tag.horizontalAngle) + Math.cos(cameraHorizontalAngle + e);
-        double yDist = tag.distance * Math.cos(tag.horizontalAngle) + Math.sin(cameraHorizontalAngle + e);
+        double xDist = tag.distance * Math.sin(horizontalAngle) + Math.cos(tagAngle + e)*f;
+        double yDist = tag.distance * Math.cos(horizontalAngle) + Math.sin(tagAngle + e)*f;
 
         double totDist = Math.sqrt(xDist * xDist + yDist * yDist);
 
 
         // if (turnPIDArg != null) turnSpeed = turnPIDArg.calculate(tag.orientation[0] + cameraHorizontalAngle); // This seems to be fine it may need to be negative but idk
         // else 
-        turnSpeed = turnPID.calculate(tag.orientation[1] - cameraHorizontalAngle);   
+        turnSpeed = turnPID.calculate(tagAngle - cameraHorizontalAngle);   
         double moveSpeed = movePID.calculate(totDist); // I do not know if this is correct - it makes some sense but idk
 
         // Look at this! Max is doing a weird normalization thing again!
@@ -229,7 +235,7 @@ public class Vision {
         return frontToSide(new ChassisSpeeds(
             -DriveConstants.highDriveSpeed * xMove,
             DriveConstants.highDriveSpeed * yMove,
-            turnSpeed), side);
+            turnSpeed), side.FRONT);
     }
 
     public ChassisSpeeds getTagDrive(int camIndex) {
