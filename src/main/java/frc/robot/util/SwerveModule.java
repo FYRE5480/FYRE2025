@@ -180,6 +180,11 @@ public class SwerveModule {
         );
     }
 
+    /**
+     * Returns false if the encoder is outside of the absolute offset (w/ tolerance)
+     * 
+     * @return False if the encoder is outside of tolerance, True if is within tolerance of absolute offset
+     */
     public boolean setupCheck() {
         return Math.abs(swerveEncoder.getPosition() - DriveConstants.absoluteOffsets[index]) > 1.5;
     }
@@ -246,15 +251,11 @@ public class SwerveModule {
         double currentAngle = swerveEncoder.getPosition();
         double targetAngle = moduleState.angle.getDegrees();
 
-        //System.out.printf("%d: %f\n", index, targetAngle);
-
         SwerveAngleSpeed absoluteTarget = getAbsoluteTarget(targetAngle, currentAngle);
 
         if (rotate) {
             swervePID.setReference(absoluteTarget.targetAngle, SparkMax.ControlType.kPosition);
         }
-
-        //System.out.printf("%d: %f\n", index, absoluteTarget.targetAngle);
 
         setMotorSpeed(
             absoluteTarget.multiplier

@@ -88,7 +88,6 @@ public class ControllerInput extends SubsystemBase {
         }
 
         turnSpeed = turnPID.calculate(currentAngle.getRadians(), turnTarget);
-        //System.out.println(turnSpeed);
 
         ChassisSpeeds chassisSpeeds;
 
