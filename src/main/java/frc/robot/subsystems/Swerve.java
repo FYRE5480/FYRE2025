@@ -1,10 +1,11 @@
 package frc.robot.subsystems;
 
-import choreo.trajectory.SwerveSample;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController;
+import java.util.concurrent.TimeUnit;
+
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
+
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,8 +14,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,13 +21,11 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
 import frc.robot.util.SwerveModule;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The physical subsystem that controls the drivetrain.
  */
 public class Swerve extends SubsystemBase {
-
     private final ControllerInput controllerInput;
 
     private final Vision visionSystem; 
@@ -97,14 +94,12 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic() {
-
-        //printModuleStatus();
-
         currentPose = poseEstimator.updateWithTime(
             startTime - Timer.getTimestamp(), gyroAhrs.getRotation2d(), getSwerveModulePositions());
 
-        //System.out.println(currentPose.toString());
+        // TODO add a timeout here or manual override to ensure setupComplete does not hold up entire robot
 
+        // TODO maybe move this to constructor? or some other init function
         if (setupComplete) {
             if (!DriverStation.isAutonomousEnabled())
                 swerveDrive(chooseDriveMode());
@@ -112,7 +107,6 @@ public class Swerve extends SubsystemBase {
     }
      
     private ChassisSpeeds chooseDriveMode() {
-
         VisionStatus status = controllerInput.visionStatus();
         ChassisSpeeds speeds;
 
@@ -147,7 +141,6 @@ public class Swerve extends SubsystemBase {
      * @param chassisSpeeds - the chassis speed that the robot should take
      */
     public void swerveDrive(ChassisSpeeds chassisSpeeds) {
-
         SwerveModuleState[] moduleState = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         boolean rotate = chassisSpeeds.vxMetersPerSecond != 0 
                         || chassisSpeeds.vyMetersPerSecond != 0 
@@ -192,19 +185,20 @@ public class Swerve extends SubsystemBase {
         visionSystem.clear();
         for (int i = 0; i < 4; i++) {
             if (swerveModules[i].setupCheck()) {
-                //System.out.printf("%d: %f\n", i, swerveModules[i].getSwervePosition() - DriveConstants.absoluteOffsets[i]);
                 return;
             }
         }
+
         setupComplete = true;
         System.out.println("----------\nSetup Complete!\n----------");
         setSwerveEncoders(0);
         for (int i = 0; i < 4; i++) swerveModules[i].setSwerveReference(0);
-        try {TimeUnit.MILLISECONDS.sleep(20);} catch (InterruptedException e) {e.getStackTrace();}
+        try {TimeUnit.MILLISECONDS.sleep(20);} catch (InterruptedException e) {e.getStackTrace();} // TODO try removing this delay?
     }
 
     private void setupModules() {
-        System.out.println("setting up modules");
+        System.out.println("Setting up swerve modules");
+
         // if this needs to loop more than 4 times, something is very wrong
         for (int i = 0; i < 4; i++) {
             swerveModules[i] = new SwerveModule(i);
@@ -232,7 +226,6 @@ public class Swerve extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             swerveModules[i].printModuleStatus();
         }
-        System.out.println();
     }
 
     /**
