@@ -80,6 +80,10 @@ public class ControllerInput extends SubsystemBase {
         // else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
     }
 
+    public void setTurnTarget(double target) {
+        turnTarget = target;
+    }
+
     /**
      * Uses controller input to return a ChassisSpeeds object.
 

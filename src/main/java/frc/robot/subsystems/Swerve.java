@@ -122,17 +122,23 @@ public class Swerve extends SubsystemBase {
 
         switch (status) {
             case LEFT_POSITION: // lines the robot up with the tag
-                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.leftOffset, turnPID);
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.leftOffset);
+                controllerInput.setTurnTarget(gyroAhrs.getAngle());
+
                 break;
             case RIGHT_POSITION: // lines the robot up with the tag
-                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.rightOffset, turnPID);
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.rightOffset);
+                controllerInput.setTurnTarget(gyroAhrs.getAngle());
+
                 break;
             case STRAIGHT_POSITION: // lines the robot up with the tag
-                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.straightOffset, turnPID);
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.straightOffset);
+                controllerInput.setTurnTarget(gyroAhrs.getAngle());
                 
                 break;
             case CORAL:
-                speeds = visionSystem.getTagDrive(VisionConstants.CoralCamIndex, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.CoralXOffset, VisionConstants.CoralYOffset, VisionConstants.CoralAngleOffset, null);
+                speeds = visionSystem.getTagDrive(VisionConstants.CoralCamIndex, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.CoralXOffset, VisionConstants.CoralYOffset, VisionConstants.CoralAngleOffset);
+                controllerInput.setTurnTarget(gyroAhrs.getAngle());
                 
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag

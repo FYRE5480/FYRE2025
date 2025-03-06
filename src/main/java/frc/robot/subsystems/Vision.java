@@ -120,9 +120,9 @@ public class Vision {
             case FRONT:
                 return inSpeeds;
             case LEFT:
-                return new ChassisSpeeds(-inSpeeds.vyMetersPerSecond, inSpeeds.vxMetersPerSecond, inSpeeds.omegaRadiansPerSecond);
-            case RIGHT:
                 return new ChassisSpeeds(inSpeeds.vyMetersPerSecond, -inSpeeds.vxMetersPerSecond, inSpeeds.omegaRadiansPerSecond);
+            case RIGHT:
+                return new ChassisSpeeds(-inSpeeds.vyMetersPerSecond, inSpeeds.vxMetersPerSecond, inSpeeds.omegaRadiansPerSecond);
             case BACK:
                 return new ChassisSpeeds(-inSpeeds.vxMetersPerSecond, -inSpeeds.vyMetersPerSecond, inSpeeds.omegaRadiansPerSecond);
             default:
@@ -192,8 +192,8 @@ public class Vision {
      * @param tagId - the apriltag ID to search for, null if no preference
      * @return speeds - the ChassisSpeeds object for the robot to take
      */
-    
-    public ChassisSpeeds getTagDrive(int camIndex, String[] tagIds, Side side, double cameraHorizontalAngle, double xOffset, double yOffset, PIDController turnPIDArg) {
+
+    public ChassisSpeeds getTagDrive(int camIndex, String[] tagIds, Side side, double cameraHorizontalAngle, double xOffset, double yOffset) {
         // The position is returned as a 3 element array of doubles in the form [x, y, z]
         // The position is in meters.
         double turnSpeed;
@@ -239,10 +239,10 @@ public class Vision {
     }
 
     public ChassisSpeeds getTagDrive(int camIndex) {
-        return getTagDrive(camIndex, null, Side.BACK, 0, 0, 0, null);
+        return getTagDrive(camIndex, null, Side.BACK, 0, 0, 0);
     }
 
-    public ChassisSpeeds getTagDrive(CameraPair cams, String[] tagIds, Side side, RobotPositionOffset offsets, PIDController turnPidArg) {
+    public ChassisSpeeds getTagDrive(CameraPair cams, String[] tagIds, Side side, RobotPositionOffset offsets) {
         // The position is returned as a 3 element array of doubles in the form [x, y, z]
         // The position is in meters.
 
@@ -250,8 +250,8 @@ public class Vision {
         double xOffset = offsets.xOffset;
         double yOffset = offsets.yOffset;
 
-        ChassisSpeeds cam1Speed = getTagDrive(cams.cam1, tagIds, side, cams.cam1Angle + angleOffset, cams.cam1XOffset + xOffset, cams.cam1YOffset + yOffset, turnPidArg);
-        ChassisSpeeds cam2Speed = getTagDrive(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset, turnPidArg);
+        ChassisSpeeds cam1Speed = getTagDrive(cams.cam1, tagIds, side, cams.cam1Angle + angleOffset, cams.cam1XOffset + xOffset, cams.cam1YOffset + yOffset);
+        ChassisSpeeds cam2Speed = getTagDrive(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset);
         if (cam1Speed == null){
             return cam2Speed;
         }
