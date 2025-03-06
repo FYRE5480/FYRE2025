@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Listener;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -93,18 +94,14 @@ public class CameraWebsocketClient {
         // This function sets up the connection to the websocket server. It returns true if the connection was successful and false if it was not.
         // Call this at any time if you want to reconnect to the server.
         try {
-                HttpClient client = HttpClient.newHttpClient();
-                CompletableFuture<WebSocket> futureWebSocket = client.newWebSocketBuilder()
-                        .buildAsync(URI.create(ip), new WebSocketListener(this));
-
-                webSocket = futureWebSocket.get(5, TimeUnit.SECONDS);
-            } catch (TimeoutException e) {
-                System.out.println("Connection timed out after 5 seconds: " + ip);
-                return false;
-            } catch (Exception e) {
-                System.out.println("Failed to connect to " + ip);
-                return false;
-            }
+            HttpClient client = HttpClient.newHttpClient();
+            webSocket = client.newWebSocketBuilder().connectTimeout(Duration.ofSeconds(5))
+                    .buildAsync(URI.create(ip), new WebSocketListener(this))
+                    .join();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
         return isConnected();
     }
 

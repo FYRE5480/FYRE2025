@@ -17,6 +17,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ArmControl;
 import frc.robot.commands.ClawControl;
 import frc.robot.commands.ClimberControl;
+import frc.robot.commands.DriveForTime;
 import frc.robot.commands.ElevatorLift;
 import frc.robot.commands.IntakeControl;
 import frc.robot.subsystems.Arm;
@@ -51,6 +52,7 @@ public class RobotContainer {
 
     public Swerve swerve = new Swerve(controller, visionSystem);
 
+
     /*
     public Intake intake = new Intake();
     public IntakeControl intakeControl = new IntakeControl(intake);
@@ -80,13 +82,14 @@ public class RobotContainer {
 
         autoChooser = new AutoChooser();
 
-        autoChooser.addRoutine("Figure8", auto::figure8);
-        autoChooser.addRoutine("MiniFigure8", auto::miniFigure8);
-        autoChooser.addRoutine("Dummy1", auto::real);
+        autoChooser.addRoutine("FromLeft", auto::fromLeft);
+        autoChooser.addRoutine("FromMid", auto::fromMid);
+        autoChooser.addRoutine("FromRight", auto::fromRight);
 
-        SmartDashboard.putData(autoChooser);
+        SmartDashboard.putData("Autos", autoChooser);
+        SmartDashboard.updateValues();
 
-        autoChooser.select("Dummy1");
+        autoChooser.select("FromMid");
 
         //RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
 
@@ -136,11 +139,11 @@ public class RobotContainer {
         // manipulator bindings
         joystick.button(1)
             .onTrue(clawControl.intake)
-            .onFalse(clawControl.stopWheels);
+            .onFalse(clawControl.stopFast);
 
         joystick.button(2)
             .onTrue(clawControl.output)
-            .onFalse(clawControl.stopWheels);
+            .onFalse(clawControl.stopFast);
 
         joystick.button(12)
             .onTrue(elevatorControl.goToBottom)
@@ -180,7 +183,7 @@ public class RobotContainer {
             // .onFalse(armControl.stopMotors);
 
         joystick.axisGreaterThan(3, 0.75)
-            .onTrue(clawControl.slowHold)
+            .whileTrue(clawControl.slowHold)
             .onFalse(clawControl.stopWheels);
 
         joystick.povUp()
@@ -211,6 +214,6 @@ public class RobotContainer {
 	 */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        return autoChooser.selectedCommandScheduler();
+        return new DriveForTime(swerve);
     }
 }

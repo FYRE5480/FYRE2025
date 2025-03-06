@@ -9,6 +9,7 @@ import frc.robot.subsystems.Claw;
  * Contains all control mechanisms for the intake.
  */
 public class ClawControl extends Command {
+    private boolean slowIntakeOn = false;
 
     private Claw claw;
 
@@ -34,10 +35,20 @@ public class ClawControl extends Command {
     });
 
     public Command slowHold = Commands.runOnce(() -> {
+        slowIntakeOn = true;
         claw.intake(0.25 * ClawConstants.clawMotorSpeed);
     });
 
+    public Command stopFast = Commands.runOnce(() -> {
+        if (slowIntakeOn){
+            claw.intake(0.25 * ClawConstants.clawMotorSpeed);
+        } else {
+            claw.stopWheels();
+        }
+    });
+
     public Command stopWheels = Commands.runOnce(() -> {
+        slowIntakeOn = false;
         claw.stopWheels();
     });
 }

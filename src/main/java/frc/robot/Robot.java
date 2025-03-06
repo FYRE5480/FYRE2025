@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.concurrent.TimeUnit;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -27,11 +28,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    // start logging to log files on the roborio
+    DataLogManager.start();
+
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-
-    try {TimeUnit.MILLISECONDS.sleep(2000);} catch (InterruptedException e) {e.getStackTrace();}
   }
 
   /**
@@ -60,10 +62,12 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    //m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    try {TimeUnit.MILLISECONDS.sleep(2000);} catch (InterruptedException e) {e.getStackTrace();}
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    DataLogManager.log("Initializing Auto");
+    try {TimeUnit.MILLISECONDS.sleep(1000);} catch (InterruptedException e) {e.getStackTrace();}
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
+      DataLogManager.log(m_autonomousCommand.getName());
       m_autonomousCommand.schedule();
     }
   }

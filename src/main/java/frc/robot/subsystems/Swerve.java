@@ -69,7 +69,7 @@ public class Swerve extends SubsystemBase {
         this.visionSystem = visionSystem;
 
         // TODO: change this dynamically depending on the starting pose of the robot
-        this.currentPose = new Pose2d(7.001, 2.542, new Rotation2d(0));
+        this.currentPose = new Pose2d(5.7, 2.1, new Rotation2d(0));
 
         // define the gyro
         gyroAhrs = new AHRS(NavXComType.kMXP_SPI);
@@ -288,4 +288,5 @@ public class Swerve extends SubsystemBase {
 
         swerveDrive(speeds);
     }
+
 }

@@ -41,11 +41,161 @@ public class Auto {
         );
     }
 
+    public AutoRoutine fromLeft() {
+        AutoRoutine fromLeft = autoFactory.newRoutine("fromLeft");
+
+        AutoTrajectory midFromLeft = fromLeft.trajectory("midFromLeft");
+        AutoTrajectory midToScore = fromLeft.trajectory("midToScore");
+        AutoTrajectory scoreToCoral = fromLeft.trajectory("scoreToCoral");
+
+        fromLeft.active().onTrue(
+            Commands.sequence(
+                midFromLeft.resetOdometry(),
+                midFromLeft.cmd()
+            )
+        );
+
+        //midFromLeft.done().onTrue(midToScore.cmd());
+        // midToScore.done().onTrue(scoreToCoral.cmd());
+
+        midToScore.atTime("goToScore")
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
+
+        midToScore.atTime("spit")
+            .onTrue(claw.output);
+
+        scoreToCoral.atTime("goToAlgae")
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
+
+        scoreToCoral.atTime("lower")
+            .onTrue(elevator.goToBottom)
+            .onTrue(arm.goToBottom);
+    
+        scoreToCoral.atTime("spit")
+            .onTrue(claw.output);
+    
+        return fromLeft;
+    }
+
+    public AutoRoutine fromRight() {
+        AutoRoutine fromRight = autoFactory.newRoutine("fromRight");
+
+        AutoTrajectory midFromRight = fromRight.trajectory("midFromLeft");
+        AutoTrajectory midToScore = fromRight.trajectory("midToScore");
+        AutoTrajectory scoreToCoral = fromRight.trajectory("scoreToCoral");
+
+        fromRight.active().onTrue(
+            Commands.sequence(
+                midFromRight.resetOdometry(),
+                midFromRight.cmd()
+            )
+        );
+
+        midFromRight.done().onTrue(midToScore.cmd());
+        midToScore.done().onTrue(scoreToCoral.cmd());
+
+        midToScore.atTime("goToScore")
+            .onTrue(elevator.goToTop)
+            .onTrue(arm.goToCoral);
+
+        midToScore.atTime("spit")
+            .onTrue(claw.output);
+
+        scoreToCoral.atTime("goToAlgae")
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
+
+        scoreToCoral.atTime("lower")
+            .onTrue(elevator.goToBottom)
+            .onTrue(arm.goToBottom);
+    
+        scoreToCoral.atTime("spit")
+            .onTrue(claw.output);
+    
+        return fromRight;
+    }
+
+    public AutoRoutine fromMid() {
+        AutoRoutine fromMid = autoFactory.newRoutine("fromMid");
+
+        AutoTrajectory midFromMid = fromMid.trajectory("midFromMid");
+        AutoTrajectory midToScore = fromMid.trajectory("midToScore");
+        AutoTrajectory scoreToCoral = fromMid.trajectory("scoreToCoral");
+
+        fromMid.active().onTrue(
+            Commands.sequence(
+                midFromMid.resetOdometry(),
+                midFromMid.cmd()
+            )
+        );
+
+        midToScore.atTime("goToScore")
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
+
+        midToScore.atTime("spit")
+            .onTrue(claw.output);
+
+        scoreToCoral.atTime("goToAlgae")
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
+
+        scoreToCoral.atTime("lower")
+            .onTrue(elevator.goToBottom)
+            .onTrue(arm.goToBottom);
+    
+        scoreToCoral.atTime("spit")
+            .onTrue(claw.output);
+    
+        return fromMid;
+    }
+
+
+    public AutoRoutine test1() {
+        AutoRoutine test1 = autoFactory.newRoutine("test1");
+
+        AutoTrajectory toMidTraj = test1.trajectory("midFromMid");
+        AutoTrajectory midToScore = test1.trajectory("midToScore");
+        AutoTrajectory scoreToCoral = test1.trajectory("scoreToCoral");
+
+        test1.active().onTrue(
+            Commands.sequence(
+                toMidTraj.resetOdometry(),
+                toMidTraj.cmd()
+            )
+        );
+
+        toMidTraj.done().onTrue(midToScore.cmd());
+        midToScore.done().onTrue(scoreToCoral.cmd());
+
+        midToScore.atTime("goToScore")
+            .onTrue(elevator.goToTop)
+            .onTrue(arm.goToCoral);
+
+        midToScore.atTime("spit")
+            .onTrue(claw.output);
+
+        scoreToCoral.atTime("goToAlgae")
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
+
+        scoreToCoral.atTime("lower")
+            .onTrue(elevator.goToBottom)
+            .onTrue(arm.goToBottom);
+    
+        scoreToCoral.atTime("spit")
+            .onTrue(claw.output);
+    
+        return test1;
+    }
+
     // runs the dummy minifigure8 routine
     public AutoRoutine real() {
         AutoRoutine figure8 = autoFactory.newRoutine("simpleRight");
 
-        AutoTrajectory figure8Trajectory = figure8.trajectory("SimpleRight");
+        AutoTrajectory figure8Trajectory = figure8.trajectory("test1");
 
         figure8.active().onTrue(
             Commands.sequence(
