@@ -5,6 +5,8 @@ import java.util.concurrent.TimeUnit;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import frc.robot.util.Elastic;
+
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -15,15 +17,12 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.VisionConstants;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
 import frc.robot.util.SwerveModule;
@@ -71,8 +70,8 @@ public class Swerve extends SubsystemBase {
         this.controllerInput = controller;
         this.visionSystem = visionSystem;
 
-        // TODO: change this dynamically depending on the starting pose of the robot
-        this.currentPose = new Pose2d(5.7, 2.1, new Rotation2d(0));
+        // pose of the swerve is initialized to real values in Auto when auto routine is run
+        this.currentPose = new Pose2d();
         this.field = new Field2d();
 
         // define the gyro
@@ -107,13 +106,19 @@ public class Swerve extends SubsystemBase {
 
         field.setRobotPose(currentPose);
 
-        // TODO add a timeout here or manual override to ensure setupComplete does not hold up entire robot
+        // force setupComplete to true after five seconds if not already true
+        if (((Timer.getTimestamp() - startTime) > 5) && (setupComplete == false)) {
+            Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Swerve Subsystem", "Swerve init forced complete after 5 seconds!"));
+            setupComplete = true;
+        }
 
-        // TODO maybe move this to constructor? or some other init function
-        if (setupComplete) {
-            if (!DriverStation.isAutonomousEnabled())
-                swerveDrive(chooseDriveMode());
-        } else setupCheck();
+        if (!setupComplete) {
+            setupCheck();
+            return;
+        }
+
+        if (!DriverStation.isAutonomousEnabled())
+            swerveDrive(chooseDriveMode());
     }
      
     private ChassisSpeeds chooseDriveMode() {
@@ -222,6 +227,7 @@ public class Swerve extends SubsystemBase {
         }
 
         setupComplete = true;
+        Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.INFO, "Swerve Subsystem", "Swerve has been initialized!"));
         System.out.println("----------\nSetup Complete!\n----------");
         setSwerveEncoders(0);
         for (int i = 0; i < 4; i++) swerveModules[i].setSwerveReference(0);
@@ -248,6 +254,10 @@ public class Swerve extends SubsystemBase {
     public ChassisSpeeds getRobotState() {return swerveDriveKinematics.toChassisSpeeds(getSwerveModuleStates());}
 
     public Pose2d getPose() {return currentPose;} 
+
+    public void setPose(Pose2d pose) {
+        currentPose = pose;
+    }
 
     public void resetGyro() {
         gyroAhrs.reset();

@@ -50,6 +50,13 @@ public class Auto {
         AutoTrajectory midToScore = fromLeft.trajectory("midToScore");
         AutoTrajectory scoreToCoral = fromLeft.trajectory("scoreToCoral");
 
+        // update current pose of robot to starting point of first trajectory
+        if (midFromLeft.getInitialPose().isEmpty()) {
+            Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Autonomous", "Could not get initial pose from trajectory!"));
+        } else {
+            swerve.setPose(midFromLeft.getInitialPose().get());
+        }
+
         fromLeft.active().onTrue(
             Commands.sequence(
                 midFromLeft.resetOdometry(),
@@ -86,9 +93,16 @@ public class Auto {
 
         AutoRoutine fromRight = autoFactory.newRoutine("fromRight");
 
-        AutoTrajectory midFromRight = fromRight.trajectory("midFromLeft");
+        AutoTrajectory midFromRight = fromRight.trajectory("midFromRight");
         AutoTrajectory midToScore = fromRight.trajectory("midToScore");
         AutoTrajectory scoreToCoral = fromRight.trajectory("scoreToCoral");
+
+        // update current pose of robot to starting point of first trajectory
+        if (midFromRight.getInitialPose().isEmpty()) {
+            Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Autonomous", "Could not get initial pose from trajectory!"));
+        } else {
+            swerve.setPose(midFromRight.getInitialPose().get());
+        }
 
         fromRight.active().onTrue(
             Commands.sequence(
@@ -129,6 +143,13 @@ public class Auto {
         AutoTrajectory midFromMid = fromMid.trajectory("midFromMid");
         AutoTrajectory midToScore = fromMid.trajectory("midToScore");
         AutoTrajectory scoreToCoral = fromMid.trajectory("scoreToCoral");
+
+        // update current pose of robot to starting point of first trajectory
+        if (midFromMid.getInitialPose().isEmpty()) {
+            Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Autonomous", "Could not get initial pose from trajectory!"));
+        } else {
+            swerve.setPose(midFromMid.getInitialPose().get());
+        }
 
         fromMid.active().onTrue(
             Commands.sequence(
