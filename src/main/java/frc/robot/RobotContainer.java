@@ -5,26 +5,20 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
-import choreo.auto.AutoFactory;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ArmControl;
 import frc.robot.commands.ClawControl;
 import frc.robot.commands.ClimberControl;
-import frc.robot.commands.DriveForTime;
 import frc.robot.commands.ElevatorLift;
-import frc.robot.commands.IntakeControl;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Vision;
 import frc.robot.util.Auto;
@@ -91,11 +85,8 @@ public class RobotContainer {
 
         autoChooser.select("FromMid");
 
-        //RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
-
         // Configure the trigger bindings
         configureBindings();
-		
     }
 
     /**
@@ -210,8 +201,7 @@ public class RobotContainer {
 	 * @return the command to run in autonomous
 	 */
     public Command getAutonomousCommand() {
-        // An example command will be run in autonomous
-        // TODO replace this with actual auto chooser
-        return new DriveForTime(swerve);
+        // Needs to be selectedCommandScheduler
+        return autoChooser.selectedCommandScheduler();
     }
 }
