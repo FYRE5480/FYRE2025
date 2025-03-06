@@ -70,8 +70,8 @@ public class Swerve extends SubsystemBase {
         this.controllerInput = controller;
         this.visionSystem = visionSystem;
 
-        // TODO: change this dynamically depending on the starting pose of the robot
-        this.currentPose = new Pose2d(5.7, 2.1, new Rotation2d(0));
+        // pose of the swerve is initialized to real values in Auto when auto routine is run
+        this.currentPose = new Pose2d();
         this.field = new Field2d();
 
         // define the gyro
@@ -112,11 +112,13 @@ public class Swerve extends SubsystemBase {
             setupComplete = true;
         }
 
-        // TODO maybe move this to constructor? or some other init function
-        if (setupComplete) {
-            if (!DriverStation.isAutonomousEnabled())
-                swerveDrive(chooseDriveMode());
-        } else setupCheck();
+        if (!setupComplete) {
+            setupCheck();
+            return;
+        }
+
+        if (!DriverStation.isAutonomousEnabled())
+            swerveDrive(chooseDriveMode());
     }
      
     private ChassisSpeeds chooseDriveMode() {
