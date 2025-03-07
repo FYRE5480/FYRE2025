@@ -83,7 +83,7 @@ public class ControllerInput extends SubsystemBase {
         double turnSpeed = 0;
 
         if (Math.abs(theta) > 0.05) {
-            turnTarget = currentAngle.getRadians() + -theta / 2;
+            turnTarget = currentAngle.getRadians() - (theta * (Math.sqrt(throttle)));
         }
 
         turnSpeed = turnPID.calculate(currentAngle.getRadians(), turnTarget);

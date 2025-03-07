@@ -83,7 +83,6 @@ public class RobotContainer {
         autoChooser.addRoutine("FromRight", auto::fromRight);
 
         SmartDashboard.putData("Autos", autoChooser);
-        SmartDashboard.updateValues();
 
         autoChooser.select("FromMid");
 

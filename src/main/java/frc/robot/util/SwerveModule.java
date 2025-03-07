@@ -36,6 +36,8 @@ public class SwerveModule {
 
     private final SparkClosedLoopController swervePID;
 
+    public SwerveModuleState currentState;
+
     double lastMotorSpeed;
     double lastMotorSetTime;
 
@@ -125,6 +127,8 @@ public class SwerveModule {
         );
         
         if (error.equals(REVLibError.kOk)) System.out.println("Swerve Module " + index + " is initialized!");
+
+        currentState = new SwerveModuleState();
     }
 
     public void setSwerveReference(double value) {
@@ -162,10 +166,11 @@ public class SwerveModule {
      * @return swerveModuleState - the object from this module
      */
     public SwerveModuleState getSwerveModuleState() {
-        return new SwerveModuleState(
+        currentState = new SwerveModuleState(
             driveEncoder.getVelocity() * DriveConstants.metersPerRotation,
             Rotation2d.fromDegrees(swerveEncoder.getPosition())
         );
+        return currentState;
     }
 
     /**
@@ -186,7 +191,7 @@ public class SwerveModule {
      * @return False if the encoder is outside of tolerance, True if is within tolerance of absolute offset
      */
     public boolean setupCheck() {
-        return Math.abs(swerveEncoder.getPosition() - DriveConstants.absoluteOffsets[index]) > 1.5;
+        return Math.abs(swerveEncoder.getPosition() - DriveConstants.absoluteOffsets[index]) > 2.5;
     }
 
     /**
