@@ -208,8 +208,8 @@ public class Vision {
 
         // tag.horizontalAngle, tag orientation needs to be negated in every instance
 
-        double horizontalAngle = -tag.horizontalAngle + cameraHorizontalAngle/2;
-        double tagAngle = -tag.orientation[1] + cameraHorizontalAngle/2;
+        double horizontalAngle = -tag.horizontalAngle + cameraHorizontalAngle;
+        double tagAngle = horizontalAngle + tag.orientation[1];
 
         double e; 
         if (yOffset == 0) e = -Math.PI/2;
