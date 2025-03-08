@@ -224,6 +224,14 @@ public final class Constants {
         public static double CoralAngleOffset = 0;
         public static int CoralCamIndex = 0;
 
+        public static final double turnP = 10;
+        public static final double turnI = 0.02;
+        public static final double turnD = 0.02;
+
+        public static final double moveP = 10.05;
+        public static final double moveI = 0.0;
+        public static final double moveD = 0.0;
+
         public static Vision.CameraPair cameraPair = new Vision.CameraPair(0, Math.PI/6+0.165,-0.32, 0.005, 1, -Math.PI/6 - 0.08015, -0.2541, 0.11627);
         /** Constructs apriltags angles hashmap. */
         public VisionConstants() {

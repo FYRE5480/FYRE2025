@@ -8,6 +8,7 @@ import java.util.List;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.util.CameraWebsocketClient;
@@ -23,8 +24,8 @@ public class Vision {
     private HashMap<String, Integer[]> apriltagPoses; // Hashmap of [angle, x, y] where angle is the angle of the tag in rads, where 
     private Timer timer = new Timer();
 
-    private PIDController turnPID = new PIDController(10, 0.02, 0.02);
-    private PIDController movePID = new PIDController(10.05, 0.0, 0.0);
+    private PIDController turnPID = new PIDController(Constants.VisionConstants.turnP, Constants.VisionConstants.turnI, Constants.VisionConstants.turnD);
+    private PIDController movePID = new PIDController(Constants.VisionConstants.moveP, Constants.VisionConstants.moveI, Constants.VisionConstants.moveD);
     private ChassisSpeeds prevChassisSpeeds;
     private double prevTime;
 
