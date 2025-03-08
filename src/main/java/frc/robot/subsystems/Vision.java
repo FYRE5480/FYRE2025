@@ -7,6 +7,11 @@ import java.util.List;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.StringLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -28,6 +33,8 @@ public class Vision {
     private PIDController movePID = new PIDController(Constants.VisionConstants.moveP, Constants.VisionConstants.moveI, Constants.VisionConstants.moveD);
     private ChassisSpeeds prevChassisSpeeds;
     private double prevTime;
+
+    private final StringLogEntry visionLog;
 
     public static class CameraPair{
         public int cam1;
@@ -92,6 +99,9 @@ public class Vision {
         turnPID.setSetpoint(0);
         movePID.enableContinuousInput(-180, 180);
         movePID.setSetpoint(0);
+
+        DataLog log = DataLogManager.getLog();
+        visionLog = new StringLogEntry(log, "/vision");
     }
 
     public Vision(CameraWebsocketClient[] camList, HashMap<String, Integer[]> apriltagPoses) {
@@ -107,6 +117,9 @@ public class Vision {
         turnPID.setSetpoint(0);
         movePID.enableContinuousInput(-180, 180);
         movePID.setSetpoint(0);
+
+        DataLog log = DataLogManager.getLog();
+        visionLog = new StringLogEntry(log, "/vision");
     }
 
     public void clear(){
@@ -231,20 +244,17 @@ public class Vision {
         // double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         // double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
 
-        // System.out.println("Camera Horizontal Angle: " + cameraHorizontalAngle);
-        // System.out.println("Tag Angle:" + tagAngle);
-        // System.out.println("Horizontal Angle: " + horizontalAngle);
-        // System.out.println("Turn Speed: " + turnSpeed);
-        // System.out.println();
-
         double xMove = (xDist / totDist) * moveSpeed;
         double yMove = (-yDist / totDist) * moveSpeed;
 
-        System.out.println("camIndex: " + camIndex);
-        System.out.println("X Distance: " + xDist);
-        System.out.println("Y Distance: " + yDist);
-        System.out.println("Tag Angle: " + tagAngle);
-        System.out.println();
+        visionLog.append(
+            String.format("camIndex: %d\nX Distance: %f\nY Distance: %f\nTag Angle: %f", 
+                camIndex, 
+                xDist, 
+                yDist, 
+                tagAngle
+            )
+        );
 
         ChassisSpeeds speeds = new ChassisSpeeds(
             DriveConstants.highDriveSpeed * xMove * 0, // TODO remove this zero

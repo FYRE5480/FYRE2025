@@ -20,6 +20,8 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
@@ -97,6 +99,9 @@ public class Swerve extends SubsystemBase {
         );
 
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
+
+        // TODO check if this holds up the entire robot
+        Commands.waitSeconds(5.0).andThen(Commands.runOnce(() -> setupComplete = true));
     }
 
     @Override
@@ -106,18 +111,20 @@ public class Swerve extends SubsystemBase {
 
         field.setRobotPose(currentPose);
 
-        // TODO force setupComplete to true after five seconds if not already true
- 
-
         if (!setupComplete) {
             setupCheck();
             return;
         }
 
-        if (!DriverStation.isAutonomousEnabled()) swerveDrive(chooseDriveMode());
+        if (!DriverStation.isAutonomousEnabled()) swerveDrive(getDriveSpeeds());
     }
      
-    private ChassisSpeeds chooseDriveMode() {
+    /**
+     * Depending on the vision status, returns either chassis speeds based on controller inputs, or vision tag drive
+     * 
+     * @return ChassisSpeeds for the swerve drive to run
+     */
+    private ChassisSpeeds getDriveSpeeds() {
         VisionStatus status = controllerInput.visionStatus();
         ChassisSpeeds speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
 
