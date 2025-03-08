@@ -247,6 +247,7 @@ public class Vision {
         double xMove = (xDist / totDist) * moveSpeed;
         double yMove = (-yDist / totDist) * moveSpeed;
 
+        // this is put in a custom vision log so that it does not spam console
         visionLog.append(
             String.format("camIndex: %d\nX Distance: %f\nY Distance: %f\nTag Angle: %f", 
                 camIndex, 

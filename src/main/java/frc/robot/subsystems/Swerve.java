@@ -99,9 +99,6 @@ public class Swerve extends SubsystemBase {
         );
 
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
-
-        // TODO check if this holds up the entire robot
-        Commands.waitSeconds(5.0).andThen(Commands.runOnce(() -> setupComplete = true));
     }
 
     @Override
