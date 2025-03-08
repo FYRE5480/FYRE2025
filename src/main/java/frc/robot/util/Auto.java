@@ -93,7 +93,7 @@ public class Auto {
 
         AutoRoutine fromRight = autoFactory.newRoutine("fromRight");
 
-        AutoTrajectory midFromRight = fromRight.trajectory("midFromLeft");
+        AutoTrajectory midFromRight = fromRight.trajectory("midFromRight");
         AutoTrajectory midToScore = fromRight.trajectory("midToScore");
         AutoTrajectory scoreToCoral = fromRight.trajectory("scoreToCoral");
 

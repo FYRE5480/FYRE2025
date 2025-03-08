@@ -104,10 +104,10 @@ public class Swerve extends SubsystemBase {
         // TODO add a timeout here or manual override to ensure setupComplete does not hold up entire robot
 
         // TODO maybe move this to constructor? or some other init function
-        if (setupComplete) {
+        //if (setupComplete) {
             if (!DriverStation.isAutonomousEnabled())
                 swerveDrive(chooseDriveMode());
-        } else setupCheck();
+        //} else setupCheck();
     }
      
     private ChassisSpeeds chooseDriveMode() {

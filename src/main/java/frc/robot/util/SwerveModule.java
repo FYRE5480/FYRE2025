@@ -44,6 +44,8 @@ public class SwerveModule extends SubsystemBase {
 
     boolean absoluteEnoderConnected;
 
+    boolean errorSent = false;
+
     /** Represents a speed and angle for a swerve module. */
     public class SwerveAngleSpeed {
         double targetAngle;
@@ -122,20 +124,20 @@ public class SwerveModule extends SubsystemBase {
 
         double relativeZero = getAbsolutePosition();
 
-        REVLibError error = swerveEncoder.setPosition(relativeZero);
-
-        swervePID.setReference(
-            DriveConstants.absoluteOffsets[index],
-            SparkMax.ControlType.kPosition
-        );
+        REVLibError error = swerveEncoder.setPosition(relativeZero - DriveConstants.absoluteOffsets[index]);    
         
         if (error.equals(REVLibError.kOk)) System.out.println("Swerve Module " + index + " is initialized!");
 
         currentState = new SwerveModuleState();
+    }
 
+    @Override
+    public void periodic() {
         absoluteEnoderConnected = getAbsolutePosition() != 0 && getAbsolutePosition() != 360;
-        
-        if (!absoluteEnoderConnected) Elastic.sendNotification(DriveConstants.encoderError);
+        if (!absoluteEnoderConnected && !errorSent) {
+            Elastic.sendNotification(DriveConstants.encoderError);
+            errorSent = true;
+        }
     }
 
     public void setSwerveReference(double value) {
