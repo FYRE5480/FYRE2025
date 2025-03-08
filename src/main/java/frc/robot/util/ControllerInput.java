@@ -72,7 +72,9 @@ public class ControllerInput extends SubsystemBase {
 
         slider = (joystick.getRawAxis(3) + 1) / 2;
         
-        if (coral){visionStatus=VisionStatus.CORAL;}
+        if (leftBumper && rightBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
+        else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
+        else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
         else visionStatus = VisionStatus.NONE;
 
         // rightBumper && leftBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;

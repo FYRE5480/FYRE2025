@@ -106,25 +106,22 @@ public class Swerve extends SubsystemBase {
 
         field.setRobotPose(currentPose);
 
-        // force setupComplete to true after five seconds if not already true
-        if (((Timer.getTimestamp() - startTime) > 5) && (setupComplete == false)) {
-            Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Swerve Subsystem", "Swerve init forced complete after 5 seconds!"));
-            setupComplete = true;
-        }
+        // TODO force setupComplete to true after five seconds if not already true
+ 
 
         if (!setupComplete) {
             setupCheck();
             return;
         }
 
-        if (!DriverStation.isAutonomousEnabled())
-            swerveDrive(chooseDriveMode());
+        if (!DriverStation.isAutonomousEnabled()) swerveDrive(chooseDriveMode());
     }
      
     private ChassisSpeeds chooseDriveMode() {
         VisionStatus status = controllerInput.visionStatus();
         ChassisSpeeds speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
 
+        // TODO please refactor this to pull out redundant code
         switch (status) {
             case LEFT_POSITION: // lines the robot up with the tag
                 speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.leftOffset);
@@ -132,17 +129,17 @@ public class Swerve extends SubsystemBase {
 
                 break;
             case RIGHT_POSITION: // lines the robot up with the tag
-                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.rightOffset);
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.rightOffset);
                 controllerInput.setTurnTarget(gyroAhrs.getAngle());
 
                 break;
             case STRAIGHT_POSITION: // lines the robot up with the tag
-                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.straightOffset);
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.straightOffset);
                 controllerInput.setTurnTarget(gyroAhrs.getAngle());
                 
                 break;
             case CORAL:
-                speeds = visionSystem.getTagDrive(VisionConstants.CoralCamIndex, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.CoralXOffset, VisionConstants.CoralYOffset, VisionConstants.CoralAngleOffset);
+                speeds = visionSystem.getTagDrive(VisionConstants.CoralCamIndex, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.CoralXOffset, VisionConstants.CoralYOffset, VisionConstants.CoralAngleOffset);
                 controllerInput.setTurnTarget(gyroAhrs.getAngle());
                 
                 break;

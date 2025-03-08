@@ -23,7 +23,7 @@ public class Vision {
     private HashMap<String, Integer[]> apriltagPoses; // Hashmap of [angle, x, y] where angle is the angle of the tag in rads, where 
     private Timer timer = new Timer();
 
-    private PIDController turnPID = new PIDController(8.192, 0.0, 0.0008);
+    private PIDController turnPID = new PIDController(10, 0.02, 0.02);
     private PIDController movePID = new PIDController(10.05, 0.0, 0.0);
     private ChassisSpeeds prevChassisSpeeds;
     private double prevTime;
@@ -199,13 +199,16 @@ public class Vision {
         Apriltag tag;
         if (tagIds != null) tag = decideTag(camIndex, tagIds);
         else tag = decideTag(camIndex);        
-        if(tag == null)return null;
+        if(tag == null) {
+            System.out.println("No tags found for camera " + camIndex);
+            return null;
+        }
+
 
         // tag.horizontalAngle, tag orientation needs to be negated in every instance
 
-        double horizontalAngle = -tag.horizontalAngle;
-        double tagAngle = -tag.orientation[1];
-
+        double horizontalAngle = -tag.horizontalAngle + cameraHorizontalAngle/2;
+        double tagAngle = -tag.orientation[1] + cameraHorizontalAngle/2;
 
         double e; 
         if (yOffset == 0) e = -Math.PI/2;
@@ -220,21 +223,34 @@ public class Vision {
 
         // if (turnPIDArg != null) turnSpeed = turnPIDArg.calculate(tag.orientation[0] + cameraHorizontalAngle); // This seems to be fine it may need to be negative but idk
         // else 
-        turnSpeed = turnPID.calculate(tagAngle - cameraHorizontalAngle);   
+        turnSpeed = turnPID.calculate(tagAngle);   
         double moveSpeed = movePID.calculate(totDist); // I do not know if this is correct - it makes some sense but idk
 
         // Look at this! Max is doing a weird normalization thing again!
         // double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         // double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
 
+        // System.out.println("Camera Horizontal Angle: " + cameraHorizontalAngle);
+        // System.out.println("Tag Angle:" + tagAngle);
+        // System.out.println("Horizontal Angle: " + horizontalAngle);
+        // System.out.println("Turn Speed: " + turnSpeed);
+        // System.out.println();
+
         double xMove = (xDist / totDist) * moveSpeed;
-        double yMove = (yDist / totDist) * moveSpeed;
+        double yMove = (-yDist / totDist) * moveSpeed;
 
+        System.out.println("camIndex: " + camIndex);
+        System.out.println("xMove: " + xDist);
+        System.out.println("yMove: " + yDist);
+        System.out.println("Turn Speed: " + tagAngle);
+        System.out.println();
 
-        return frontToSide(new ChassisSpeeds(
-            -DriveConstants.highDriveSpeed * xMove,
-            DriveConstants.highDriveSpeed * yMove,
-            turnSpeed), side.FRONT);
+        ChassisSpeeds speeds = new ChassisSpeeds(
+            DriveConstants.highDriveSpeed * xMove * 0,
+            DriveConstants.highDriveSpeed * yMove * 0,
+            -turnSpeed);
+
+        return speeds;
     }
 
     public ChassisSpeeds getTagDrive(int camIndex) {

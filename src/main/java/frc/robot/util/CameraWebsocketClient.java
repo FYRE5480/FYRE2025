@@ -344,7 +344,7 @@ public class CameraWebsocketClient {
         if (pMessage == null) {
             return null;
         }
-        System.out.println(pMessage);
+        // System.out.println(pMessage);
         try {
             JsonArray jsonArray = new Gson().fromJson(pMessage, JsonArray.class);
             List<Apriltag> apriltags = new ArrayList<>();
