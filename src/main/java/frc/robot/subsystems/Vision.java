@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
@@ -190,13 +192,12 @@ public class Vision {
 
      * @param camIndex - the index of the desired camera to use
      * @param tagId - the apriltag ID to search for, null if no preference
-     * @return speeds - the ChassisSpeeds object for the robot to take
+     * @return position - the relative position of the tag to the robot
      */
 
-    public ChassisSpeeds getTagDrive(int camIndex, String[] tagIds, Side side, double cameraHorizontalAngle, double xOffset, double yOffset) {
+    public Transform2d getTagRelativePosition(int camIndex, String[] tagIds, Side side, double cameraHorizontalAngle, double xOffset, double yOffset) {
         // The position is returned as a 3 element array of doubles in the form [x, y, z]
         // The position is in meters.
-        double turnSpeed;
         Apriltag tag;
         if (tagIds != null) tag = decideTag(camIndex, tagIds);
         else tag = decideTag(camIndex);    
@@ -205,8 +206,6 @@ public class Vision {
             System.out.println("No tags found for camera " + camIndex);
             return null;
         }
-
-        // tag.horizontalAngle, tag orientation needs to be negated in every instance
 
         double horizontalAngle = -tag.horizontalAngle + cameraHorizontalAngle/2;
         double tagAngle = -tag.orientation[1] + cameraHorizontalAngle/2;
@@ -219,61 +218,63 @@ public class Vision {
         double xDist = tag.distance * Math.sin(horizontalAngle) + Math.cos(tagAngle + e)*f;
         double yDist = tag.distance * Math.cos(horizontalAngle) + Math.sin(tagAngle + e)*f;
 
-        double totDist = Math.sqrt(xDist * xDist + yDist * yDist);
-
-
-        // if (turnPIDArg != null) turnSpeed = turnPIDArg.calculate(tag.orientation[0] + cameraHorizontalAngle); // This seems to be fine it may need to be negative but idk
-        // else 
-        turnSpeed = turnPID.calculate(tagAngle);   
-        double moveSpeed = movePID.calculate(totDist); // I do not know if this is correct - it makes some sense but idk
-
-        // Look at this! Max is doing a weird normalization thing again!
-        // double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
-        // double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
-
-        double xMove = (xDist / totDist) * moveSpeed;
-        double yMove = (-yDist / totDist) * moveSpeed;
-
         System.out.println("camIndex: " + camIndex);
         System.out.println("X Distance: " + xDist);
         System.out.println("Y Distance: " + yDist);
         System.out.println("Tag Angle: " + tagAngle);
 
-        ChassisSpeeds speeds = new ChassisSpeeds(
-            DriveConstants.highDriveSpeed * xMove,
-            DriveConstants.highDriveSpeed * yMove,
-            -turnSpeed);
+        Transform2d position = new Transform2d(
+            xDist,
+            yDist,
+            new Rotation2d(tagAngle)
+        );
 
-        return speeds;
-    }
-
-    public ChassisSpeeds getTagDrive(int camIndex) {
-        return getTagDrive(camIndex, null, Side.BACK, 0, 0, 0);
+        return position;
     }
 
     public ChassisSpeeds getTagDrive(CameraPair cams, String[] tagIds, Side side, RobotPositionOffset offsets) {
-        // The position is returned as a 3 element array of doubles in the form [x, y, z]
-        // The position is in meters.
-
         double angleOffset = offsets.angleOffset;
         double xOffset = offsets.xOffset;
         double yOffset = offsets.yOffset;
 
-        ChassisSpeeds cam1Speed = getTagDrive(cams.cam1, tagIds, side, cams.cam1Angle + angleOffset, cams.cam1XOffset + xOffset, cams.cam1YOffset + yOffset);
-        ChassisSpeeds cam2Speed = getTagDrive(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset);
-        
-        if (cam1Speed == null){
-            return cam2Speed;
+        Transform2d cam1Position = getTagRelativePosition(cams.cam1, tagIds, side, cams.cam1Angle + angleOffset, cams.cam1XOffset + xOffset, cams.cam1YOffset + yOffset);
+        Transform2d cam2Position = getTagRelativePosition(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset);
+
+        Transform2d averagedPosition = new Transform2d();
+
+        if (cam1Position != null){
+            averagedPosition.plus(cam1Position);
         }
-        if (cam2Speed == null){
-            return cam1Speed;
+        if (cam2Position != null){
+            averagedPosition.plus(cam2Position);
         }
-        
-        return new ChassisSpeeds(
-            (cam1Speed.vxMetersPerSecond + cam2Speed.vxMetersPerSecond) / 2,
-            (cam1Speed.vyMetersPerSecond + cam2Speed.vyMetersPerSecond) / 2,
-            (cam1Speed.omegaRadiansPerSecond + cam2Speed.omegaRadiansPerSecond) / 2
+
+        // average out averagedPosition if both positions are not null
+        if (cam1Position != null && cam2Position != null) {
+            averagedPosition.div(2);
+        }
+
+        double xDist = averagedPosition.getX();
+        double yDist = averagedPosition.getY();
+        double totDist = Math.sqrt(xDist * xDist + yDist * yDist);
+
+        double turnSpeed = turnPID.calculate(averagedPosition.getRotation().getRadians());   
+        double moveSpeed = movePID.calculate(totDist);
+
+        double xMove = (xDist / totDist) * moveSpeed;
+        double yMove = (-yDist / totDist) * moveSpeed;
+
+        System.out.println("Averaged X Distance: " + xDist);
+        System.out.println("Averaged Y Distance: " + yDist);
+        System.out.println("Averaged Tag Angle: " + averagedPosition.getRotation().getRadians());
+
+        ChassisSpeeds speeds = new ChassisSpeeds(
+            DriveConstants.highDriveSpeed * xMove,
+            DriveConstants.highDriveSpeed * yMove,
+            -turnSpeed
         );
+
+        return speeds;
     }
 
     public ChassisSpeeds getPieceDrive(int camIndex, double cameraOffsetAngle, double xOffset, double yOffset) {
