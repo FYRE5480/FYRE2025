@@ -137,9 +137,13 @@ public class RobotContainer {
         xboxController.b()
             .onChange(controller.toggleAlignTag);
 
+        xboxController.y()
+            .onTrue(climberControl.sendIt)
+            .onFalse(climberControl.stopClimber); 
+
         // manipulator bindings
         joystick.button(1)
-            .onTrue(clawControl.intake)
+            .onTrue(clawControl.intake) 
             .onFalse(clawControl.stopFast);
 
         joystick.button(2)

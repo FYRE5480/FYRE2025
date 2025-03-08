@@ -207,7 +207,7 @@ public final class Constants {
 
         public static final double motorToClimberRatio = 1 / 80.0;
 
-        public static final double climberThrottle = 0.55;
+        public static final double climberThrottle = 0.25;
     }
 
     /** A set of constants relating to operator controls. */

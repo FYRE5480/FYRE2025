@@ -133,11 +133,11 @@ public class SwerveModule extends SubsystemBase {
 
     @Override
     public void periodic() {
-        absoluteEnoderConnected = getAbsolutePosition() != 0 && getAbsolutePosition() != 360;
-        if (!absoluteEnoderConnected && !errorSent) {
-            Elastic.sendNotification(DriveConstants.encoderError);
-            errorSent = true;
-        }
+        // absoluteEnoderConnected = getAbsolutePosition() != 0 && getAbsolutePosition() != 360;
+        // if (!absoluteEnoderConnected && !errorSent) {
+        //     Elastic.sendNotification(DriveConstants.encoderError);
+        //     errorSent = true;
+        // }
     }
 
     public void setSwerveReference(double value) {
