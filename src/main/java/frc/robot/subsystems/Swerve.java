@@ -121,30 +121,25 @@ public class Swerve extends SubsystemBase {
         VisionStatus status = controllerInput.visionStatus();
         ChassisSpeeds speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
 
-        // TODO please refactor this to pull out redundant code
+        // if we are doing vision, then reset the gyro to prevent "whiplash"
+        if (controllerInput.visionStatus() != VisionStatus.NONE) {
+            controllerInput.setTurnTarget(gyroAhrs.getRotation2d().getRadians());
+        }
+
         switch (status) {
             case LEFT_POSITION: // lines the robot up with the tag
                 speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.leftOffset);
-                controllerInput.setTurnTarget(gyroAhrs.getAngle());
-
                 break;
             case RIGHT_POSITION: // lines the robot up with the tag
                 speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.rightOffset);
-                controllerInput.setTurnTarget(gyroAhrs.getAngle());
-
                 break;
             case STRAIGHT_POSITION: // lines the robot up with the tag
                 speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.straightOffset);
-                controllerInput.setTurnTarget(gyroAhrs.getAngle());
-                
                 break;
             case CORAL:
                 speeds = visionSystem.getTagDrive(VisionConstants.CoralCamIndex, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.CoralXOffset, VisionConstants.CoralYOffset, VisionConstants.CoralAngleOffset);
-                controllerInput.setTurnTarget(gyroAhrs.getAngle());
-                
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
-
                 // TODO: lock on with both cameras
                 ChassisSpeeds controllerSpeeds = controllerInput.controllerChassisSpeeds(
                     turnPID, gyroAhrs.getRotation2d());
@@ -160,11 +155,10 @@ public class Swerve extends SubsystemBase {
             default: // if all else fails - revert to drive controls
                 speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
                 break;
-            
-            
         }
-        if (speeds == null) speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
 
+        // this should never execute, but for our peace of mind
+        if (speeds == null) speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
 
         return speeds;
     }

@@ -199,12 +199,12 @@ public class Vision {
         double turnSpeed;
         Apriltag tag;
         if (tagIds != null) tag = decideTag(camIndex, tagIds);
-        else tag = decideTag(camIndex);        
-        if(tag == null) {
+        else tag = decideTag(camIndex);    
+
+        if (tag == null) {
             System.out.println("No tags found for camera " + camIndex);
             return null;
         }
-
 
         // tag.horizontalAngle, tag orientation needs to be negated in every instance
 
@@ -241,14 +241,14 @@ public class Vision {
         double yMove = (-yDist / totDist) * moveSpeed;
 
         System.out.println("camIndex: " + camIndex);
-        System.out.println("xMove: " + xDist);
-        System.out.println("yMove: " + yDist);
-        System.out.println("Turn Speed: " + tagAngle);
+        System.out.println("X Distance: " + xDist);
+        System.out.println("Y Distance: " + yDist);
+        System.out.println("Tag Angle: " + tagAngle);
         System.out.println();
 
         ChassisSpeeds speeds = new ChassisSpeeds(
-            DriveConstants.highDriveSpeed * xMove * 0,
-            DriveConstants.highDriveSpeed * yMove * 0,
+            DriveConstants.highDriveSpeed * xMove * 0, // TODO remove this zero
+            DriveConstants.highDriveSpeed * yMove * 0, // TODO remove this zero
             -turnSpeed);
 
         return speeds;
@@ -268,6 +268,7 @@ public class Vision {
 
         ChassisSpeeds cam1Speed = getTagDrive(cams.cam1, tagIds, side, cams.cam1Angle + angleOffset, cams.cam1XOffset + xOffset, cams.cam1YOffset + yOffset);
         ChassisSpeeds cam2Speed = getTagDrive(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset);
+        
         if (cam1Speed == null){
             return cam2Speed;
         }
