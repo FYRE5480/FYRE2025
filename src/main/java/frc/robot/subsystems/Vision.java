@@ -240,8 +240,8 @@ public class Vision {
         System.out.println("Tag Angle: " + tagAngle);
 
         ChassisSpeeds speeds = new ChassisSpeeds(
-            DriveConstants.highDriveSpeed * xMove * 0, // TODO remove this zero
-            DriveConstants.highDriveSpeed * yMove * 0, // TODO remove this zero
+            DriveConstants.highDriveSpeed * xMove,
+            DriveConstants.highDriveSpeed * yMove,
             -turnSpeed);
 
         return speeds;
