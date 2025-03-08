@@ -224,7 +224,7 @@ public final class Constants {
         public static double CoralAngleOffset = 0;
         public static int CoralCamIndex = 0;
 
-        public static Vision.CameraPair cameraPair = new Vision.CameraPair(0, 1, Math.PI/6+0.165, -Math.PI/6 - 0.08015, -0.03 - 0.29, -0.075 + 0.08, 0.03-0.2841, 0.075+0.04127);
+        public static Vision.CameraPair cameraPair = new Vision.CameraPair(0, Math.PI/6+0.165,-0.32, 0.005, 1, -Math.PI/6 - 0.08015, -0.2541, 0.11627);
         /** Constructs apriltags angles hashmap. */
         public VisionConstants() {
             apriltagAngles.put("13", 0);

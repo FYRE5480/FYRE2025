@@ -40,7 +40,7 @@ public class Vision {
 
         public double cam2XOffset;
         public double cam2YOffset;
-        public CameraPair(int cam1, int cam2, double cam1Angle, double cam2Angle, double cam1XOffset, double cam1YOffset, double cam2XOffset, double cam2YOffset) {
+        public CameraPair(int cam1, double cam1Angle, double cam1XOffset, double cam1YOffset, int cam2, double cam2Angle, double cam2XOffset, double cam2YOffset) {
             this.cam1 = cam1;
             this.cam2 = cam2;
             this.cam1Angle = cam1Angle;
