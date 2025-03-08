@@ -9,6 +9,9 @@ package frc.robot;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.Elastic.Notification;
+import frc.robot.util.Elastic.Notification.NotificationLevel;
+
 import java.util.HashMap;
 
 /**
@@ -127,6 +130,14 @@ public final class Constants {
         public static final double driveMotorToWheel = 1 / 6.12;
 
         public static final double nosBooster = 5.25;
+
+
+        public static final Notification encoderError = new Notification(
+            NotificationLevel.ERROR,
+            "ABSOLUTE ENCODER NOT CONNECTED ON ONE OR MORE MODULES",
+            "The absolute encoder for a swerve module is not connected! Please check the debugging tab to see which one."
+        );
+
     }
 
     /** A set of constants relating to the elevator. */

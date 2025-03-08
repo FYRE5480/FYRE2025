@@ -1,11 +1,8 @@
 package frc.robot.subsystems;
 
-import java.util.concurrent.TimeUnit;
-
+import choreo.trajectory.SwerveSample;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-
-import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,12 +15,12 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
 import frc.robot.util.SwerveModule;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The physical subsystem that controls the drivetrain.
@@ -69,7 +66,7 @@ public class Swerve extends SubsystemBase {
         this.visionSystem = visionSystem;
 
         // TODO: change this dynamically depending on the starting pose of the robot
-        this.currentPose = new Pose2d(5.7, 2.1, new Rotation2d(0));
+        this.currentPose = new Pose2d(0, 0, new Rotation2d(0));
         this.field = new Field2d();
 
         // define the gyro
@@ -219,6 +216,8 @@ public class Swerve extends SubsystemBase {
         }
     }
 
+    public SwerveModule[] getModules() {return swerveModules;}
+
     public SwerveDriveKinematics getSwerveDriveKinematics() {return swerveDriveKinematics;}
 
     public ChassisSpeeds getRobotState() {return swerveDriveKinematics.toChassisSpeeds(getSwerveModuleStates());}
@@ -271,6 +270,18 @@ public class Swerve extends SubsystemBase {
 
         builder.addDoubleProperty("Robot Angle", () -> gyroAhrs.getRotation2d().getDegrees(), null);
 
+        builder.addDoubleProperty("Match Time", () -> DriverStation.getMatchTime(), null);
+
+        builder.addBooleanProperty("Module 0 Encoder", () -> 
+            swerveModules[0].getAbsoluteEncoderConnected(), null);
+        builder.addBooleanProperty("Module 1 Encoder", () -> 
+            swerveModules[1].getAbsoluteEncoderConnected(), null);
+        builder.addBooleanProperty("Module 2 Encoder", () -> 
+            swerveModules[2].getAbsoluteEncoderConnected(), null);
+        builder.addBooleanProperty("Module 3 Encoder", () -> 
+            swerveModules[3].getAbsoluteEncoderConnected(), null);
+
+        
     }
 
 

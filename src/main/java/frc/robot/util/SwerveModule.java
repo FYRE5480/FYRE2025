@@ -16,10 +16,11 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 
 /** A wrapper class to encapsulate a swerve module. */
-public class SwerveModule {
+public class SwerveModule extends SubsystemBase {
 
     // the index of this swerve module
     private final int index;
@@ -40,6 +41,8 @@ public class SwerveModule {
 
     double lastMotorSpeed;
     double lastMotorSetTime;
+
+    boolean absoluteEnoderConnected;
 
     /** Represents a speed and angle for a swerve module. */
     public class SwerveAngleSpeed {
@@ -129,6 +132,10 @@ public class SwerveModule {
         if (error.equals(REVLibError.kOk)) System.out.println("Swerve Module " + index + " is initialized!");
 
         currentState = new SwerveModuleState();
+
+        absoluteEnoderConnected = getAbsolutePosition() != 0 && getAbsolutePosition() != 360;
+        
+        if (!absoluteEnoderConnected) Elastic.sendNotification(DriveConstants.encoderError);
     }
 
     public void setSwerveReference(double value) {
@@ -150,6 +157,10 @@ public class SwerveModule {
 
     public double getDrivePostion() {
         return driveEncoder.getPosition();
+    }
+
+    public boolean getAbsoluteEncoderConnected() {
+        return absoluteEnoderConnected;
     }
 
     public void printModuleStatus() {
@@ -186,9 +197,9 @@ public class SwerveModule {
     }
 
     /**
-     * Returns false if the encoder is outside of the absolute offset (w/ tolerance)
-     * 
-     * @return False if the encoder is outside of tolerance, True if is within tolerance of absolute offset
+     * Returns false if the encoder is outside of the absolute offset (w/ tolerance).
+
+     * @return boolean - False if the encoder is outside of tolerance, True if is within tolerance of absolute offset
      */
     public boolean setupCheck() {
         return Math.abs(swerveEncoder.getPosition() - DriveConstants.absoluteOffsets[index]) > 2.5;
@@ -202,22 +213,6 @@ public class SwerveModule {
      * @return absoluteTarget - the absolute angle the target should approach
      */
     public SwerveAngleSpeed getAbsoluteTarget(double targetAngle, double currentAngle) {
-        
-        // double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
-
-        // if (angleDiff > 180) {
-        //     angleDiff -= 360;
-        // } else if (angleDiff < -180) {
-        //     angleDiff += 360;
-        // }
-
-        // SwerveAngleSpeed speed = new SwerveAngleSpeed();
-        // speed.targetAngle = currentAngle + angleDiff;
-        // speed.multiplier = 1;
-
-        // return speed;
-
-        // targetAngle += 180;
 
         int multiplier = 1;
 
@@ -229,10 +224,10 @@ public class SwerveModule {
             angleDiff += 360;
         }
 
-        if (angleDiff < -90){
+        if (angleDiff < -90) {
             angleDiff += 180;
             multiplier = -1;
-        } else if (angleDiff > 90){
+        } else if (angleDiff > 90) {
             angleDiff -= 180;
             multiplier = -1;
         }
