@@ -9,6 +9,7 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.util.ControllerInput;
@@ -126,15 +128,49 @@ public class Swerve extends SubsystemBase {
             controllerInput.setTurnTarget(gyroAhrs.getRotation2d().getRadians());
         }
 
+        double totVel;
         switch (status) {
-            case LEFT_POSITION: // lines the robot up with the tag
+            case LEFT_POSITION:
                 speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.leftOffset);
+                
+                totVel = Math.sqrt(speeds.vxMetersPerSecond * speeds.vxMetersPerSecond + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond);
+                
+                if (totVel < Constants.VisionConstants.minimumVisionVelocity) {
+                    return new ChassisSpeeds(
+                        0,
+                        0,
+                        0
+                    );
+                }
+                
                 break;
-            case RIGHT_POSITION: // lines the robot up with the tag
+            case RIGHT_POSITION:
                 speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.rightOffset);
+                
+                totVel = Math.sqrt(speeds.vxMetersPerSecond * speeds.vxMetersPerSecond + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond);
+                
+                if (totVel < Constants.VisionConstants.minimumVisionVelocity) {
+                    return new ChassisSpeeds(
+                        0,
+                        0,
+                        0
+                    );
+                }
+                
                 break;
-            case STRAIGHT_POSITION: // lines the robot up with the tag
+            case STRAIGHT_POSITION:
                 speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.straightOffset);
+                
+                totVel = Math.sqrt(speeds.vxMetersPerSecond * speeds.vxMetersPerSecond + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond);
+                
+                if (totVel < Constants.VisionConstants.minimumVisionVelocity) {
+                    return new ChassisSpeeds(
+                        0,
+                        0,
+                        0
+                    );
+                }
+                
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
                 // TODO: lock on with both cameras

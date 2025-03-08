@@ -9,6 +9,10 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleTopic;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -30,6 +34,18 @@ public class Vision {
     private PIDController movePID = new PIDController(Constants.VisionConstants.moveP, Constants.VisionConstants.moveI, Constants.VisionConstants.moveD);
     private ChassisSpeeds prevChassisSpeeds;
     private double prevTime;
+
+    DoublePublisher cam1XPosPublisher = NetworkTableInstance.getDefault().getDoubleTopic("/vision/cam1Xpos").publish();
+    DoublePublisher cam1YPosPublisher = NetworkTableInstance.getDefault().getDoubleTopic("/vision/cam1Ypos").publish();
+    DoublePublisher cam1AnglePublisher = NetworkTableInstance.getDefault().getDoubleTopic("/vision/cam1Angle").publish();
+
+    DoublePublisher cam2XPosPublisher = NetworkTableInstance.getDefault().getDoubleTopic("/vision/cam2Xpos").publish();
+    DoublePublisher cam2YPosPublisher = NetworkTableInstance.getDefault().getDoubleTopic("/vision/cam2Ypos").publish();
+    DoublePublisher cam2AnglePublisher = NetworkTableInstance.getDefault().getDoubleTopic("/vision/cam2Angle").publish();
+
+    DoublePublisher averagedXPosPublisher = NetworkTableInstance.getDefault().getDoubleTopic("/vision/averagedXpos").publish();
+    DoublePublisher averagedYPosPublisher = NetworkTableInstance.getDefault().getDoubleTopic("/vision/averagedYpos").publish();
+    DoublePublisher averagedAnglePublisher = NetworkTableInstance.getDefault().getDoubleTopic("/vision/averagedAngle").publish();
 
     public static class CameraPair{
         public int cam1;
@@ -218,15 +234,10 @@ public class Vision {
         double xDist = tag.distance * Math.sin(horizontalAngle) + Math.cos(tagAngle + e)*f;
         double yDist = tag.distance * Math.cos(horizontalAngle) + Math.sin(tagAngle + e)*f;
 
-        System.out.println("camIndex: " + camIndex);
-        System.out.println("X Distance: " + xDist);
-        System.out.println("Y Distance: " + yDist);
-        System.out.println("Tag Angle: " + tagAngle);
-
         Transform2d position = new Transform2d(
             xDist,
             yDist,
-            new Rotation2d(tagAngle)
+            new Rotation2d(horizontalAngle - tagAngle) // this angle might need to be changed
         );
 
         return position;
@@ -240,33 +251,48 @@ public class Vision {
         Transform2d cam1Position = getTagRelativePosition(cams.cam1, tagIds, side, cams.cam1Angle + angleOffset, cams.cam1XOffset + xOffset, cams.cam1YOffset + yOffset);
         Transform2d cam2Position = getTagRelativePosition(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset);
 
-        Transform2d averagedPosition = new Transform2d();
+        double averagedX = 0.0;
+        double averagedY = 0.0;
+        double averagedAngle = 0.0;
 
         if (cam1Position != null){
-            averagedPosition.plus(cam1Position);
+            averagedX += cam1Position.getX();
+            averagedY += cam1Position.getY();
+            averagedAngle += cam1Position.getRotation().getRadians();
         }
         if (cam2Position != null){
-            averagedPosition.plus(cam2Position);
+            averagedX += cam2Position.getX();
+            averagedY += cam2Position.getY();
+            averagedAngle += cam2Position.getRotation().getRadians();
         }
 
         // average out averagedPosition if both positions are not null
         if (cam1Position != null && cam2Position != null) {
-            averagedPosition.div(2);
+            averagedX /= 2;
+            averagedY /= 2;
+            averagedAngle /= 2;
         }
+        
+        // publish x, y, and angle of two cameras and average to networktables
+        cam1XPosPublisher.set(cam1Position.getX());
+        cam1YPosPublisher.set(cam1Position.getY());
+        cam1AnglePublisher.set(cam1Position.getRotation().getRadians());
 
-        double xDist = averagedPosition.getX();
-        double yDist = averagedPosition.getY();
-        double totDist = Math.sqrt(xDist * xDist + yDist * yDist);
+        cam2XPosPublisher.set(cam2Position.getX());
+        cam2YPosPublisher.set(cam2Position.getY());
+        cam2AnglePublisher.set(cam2Position.getRotation().getRadians());
 
-        double turnSpeed = turnPID.calculate(averagedPosition.getRotation().getRadians());   
+        averagedXPosPublisher.set(averagedX);
+        averagedYPosPublisher.set(averagedY);
+        averagedAnglePublisher.set(averagedAngle);
+
+        double totDist = Math.sqrt(averagedX * averagedX + averagedY * averagedY);
+
+        double turnSpeed = turnPID.calculate(averagedAngle);   
         double moveSpeed = movePID.calculate(totDist);
 
-        double xMove = (xDist / totDist) * moveSpeed;
-        double yMove = (-yDist / totDist) * moveSpeed;
-
-        System.out.println("Averaged X Distance: " + xDist);
-        System.out.println("Averaged Y Distance: " + yDist);
-        System.out.println("Averaged Tag Angle: " + averagedPosition.getRotation().getRadians());
+        double xMove = (averagedX / totDist) * moveSpeed;
+        double yMove = (-averagedY / totDist) * moveSpeed;
 
         ChassisSpeeds speeds = new ChassisSpeeds(
             DriveConstants.highDriveSpeed * xMove,
