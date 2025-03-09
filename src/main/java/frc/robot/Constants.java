@@ -9,8 +9,10 @@ package frc.robot;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.Elastic.Notification;
+import frc.robot.util.Elastic.Notification.NotificationLevel;
+
 import java.util.HashMap;
-import frc.robot.subsystems.Vision;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -128,6 +130,14 @@ public final class Constants {
         public static final double driveMotorToWheel = 1 / 6.12;
 
         public static final double nosBooster = 5.25;
+
+
+        public static final Notification encoderError = new Notification(
+            NotificationLevel.ERROR,
+            "ABSOLUTE ENCODER NOT CONNECTED ON ONE OR MORE MODULES",
+            "The absolute encoder for a swerve module is not connected! Please check the debugging tab to see which one."
+        );
+
     }
 
     /** A set of constants relating to the elevator. */
@@ -162,7 +172,7 @@ public final class Constants {
 
     /** A set of constants relating to the arm. */
     public static class ArmConstants {
-        public static final int armPort = 12;
+        public static final int armPort = 13;
         public static final double staticGain = 0.30;
         public static final double gravityGain = 0.20;
         public static final double velocityGain = 3.65;
@@ -186,7 +196,7 @@ public final class Constants {
 
     /** A set of constants relating to the claw. */
     public static class ClawConstants {
-        public static final int clawMotorPort = 13;
+        public static final int clawMotorPort = 12;
 
         public static final double clawMotorSpeed = 1.0;
     }
@@ -208,9 +218,8 @@ public final class Constants {
 
     /** A set of constants relating to vision. */
     public static class VisionConstants {
-        public static final String ipAddress = "ws://10.54.80.123";
-        public static final int[] CameraRotations = {0, 0, 0};
-        public static final String[] tagIDs = {"1", "2", "12", "13", "6", "7", "8", "9", "10", "11", "17", "18", "19", "20", "21", "22"};
+        public static final String ipAddress = "ws://10.42.0.123";
+        public static final int[] CameraRotations = {0};
         public static HashMap<String, Integer> apriltagAngles = new HashMap<>();
         public static final double maxIntakeAngle = Math.PI/6;
         public static final double misallignedPieceOffset = Math.PI/12; // This is the angle to go at when the piece is misaligned and 1m away. It will be adjusted automatically for different angles.

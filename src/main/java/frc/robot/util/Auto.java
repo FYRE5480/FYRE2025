@@ -3,20 +3,35 @@ package frc.robot.util;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.ArmControl;
 import frc.robot.commands.ClawControl;
 import frc.robot.commands.ElevatorLift;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Vision;
 
 /** Simple wrapper class to load routines. */
 public class Auto {
     
     Swerve swerve;
+    Vision vision;
     ElevatorLift elevator;
     ClawControl claw;
     ArmControl arm;
+
+    Command alignWithTag = Commands.runOnce(() -> {
+        double totVel;
+        do {
+            ChassisSpeeds speeds = vision.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.leftOffset);
+            totVel = Math.sqrt(speeds.vxMetersPerSecond * speeds.vxMetersPerSecond + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond);
+            swerve.swerveDrive(speeds);
+        } while (totVel > Constants.VisionConstants.minimumVisionVelocity);
+    });
 
     AutoFactory autoFactory;
 
@@ -25,9 +40,10 @@ public class Auto {
 
      * @param swerve - the swerve object to be used
      */
-    public Auto(Swerve swerve, ElevatorLift elevator, ClawControl claw, ArmControl arm) {
+    public Auto(Swerve swerve, Vision vision, ElevatorLift elevator, ClawControl claw, ArmControl arm) {
 
         this.swerve = swerve;
+        this.vision = vision;
         this.elevator = elevator;
         this.claw = claw;
         this.arm = arm;
@@ -64,8 +80,8 @@ public class Auto {
             )
         );
 
-        // midFromLeft.done().onTrue(midToScore.cmd());
-        // midToScore.done().onTrue(scoreToCoral.cmd());
+        midFromLeft.done().onTrue(alignWithTag.andThen(midToScore.cmd()));
+        midToScore.done().onTrue(scoreToCoral.cmd());
 
         midToScore.atTime("goToScore")
             .onTrue(elevator.goToMid)
@@ -111,7 +127,7 @@ public class Auto {
             )
         );
 
-        midFromRight.done().onTrue(midToScore.cmd());
+        midFromRight.done().onTrue(alignWithTag.andThen(midToScore.cmd()));
         midToScore.done().onTrue(scoreToCoral.cmd());
 
         midToScore.atTime("goToScore")
@@ -157,6 +173,7 @@ public class Auto {
                 midFromMid.cmd()
             )
         );
+
 
         midToScore.atTime("goToScore")
             .onTrue(elevator.goToMid)
