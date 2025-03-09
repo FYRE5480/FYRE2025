@@ -62,7 +62,7 @@ public class Arm extends SubsystemBase {
     
     private TrapezoidProfile.State bottomState = new TrapezoidProfile.State(
         0,
-        0.05
+        0.0
     );
 
     private boolean manualOverride = false;

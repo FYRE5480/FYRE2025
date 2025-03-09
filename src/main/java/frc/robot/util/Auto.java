@@ -66,15 +66,26 @@ public class Auto {
         alg2.atTime("spit")
             .onTrue(claw.output);
 
+        alg2.atTime("suck")
+            .onTrue(claw.intake);
+
         alg2.atTime("up")
             .onTrue(elevator.goToBottom)
             .onTrue(arm.goToUpperAlgae);
 
-        alg2.atTime("down")
-            .onTrue(elevator.goToBottom)
+        // this code is fine
+        alg2.atTime("asdf")
             .onTrue(arm.goToBottom);
 
-        midFromLeft.atTime("suck")
+        alg2.atTime("asdf")
+            .onTrue(elevator.goToBottom);
+
+        // the following code causes arm.goToBottom to run many, many times
+        // alg2.atTime("asdf")
+        //     .onTrue(elevator.goToBottom)
+        //     .onTrue(arm.goToBottom);
+
+        midFromLeft.atTime("slowSuck")
             .onTrue(claw.slowHold);
 
         midToScore.atTime("goToScore")
@@ -89,7 +100,7 @@ public class Auto {
             .onTrue(arm.goToLowerAlgae);
 
         scoreToCoral.atTime("suck")
-            .onTrue(claw.slowHold);
+            .onTrue(claw.intake);
 
         scoreToCoral.atTime("goToAlgae")
             .onTrue(elevator.goToMid)

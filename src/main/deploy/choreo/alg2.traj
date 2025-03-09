@@ -422,6 +422,6 @@
  },
  "events":[
    {"name":"spit", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"down", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"1 s", "val":1.0}}, "event":null},
-   {"name":"up", "from":{"target":1, "targetTimestamp":6.12472, "offset":{"exp":"-2.5 s", "val":-2.5}}, "event":null}]
+   {"name":"suck", "from":{"target":1, "targetTimestamp":6.12472, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
+   {"name":"asdf", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[]}}}]
 }
