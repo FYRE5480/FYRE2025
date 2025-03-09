@@ -99,7 +99,7 @@ public final class Constants {
         public static final double swerveD = 0.015;
         public static final double swerveFF = 0.0;
 
-        public static final double xyP = 10.05;
+        public static final double xyP = 1.05;
         public static final double xyI = 0;
         public static final double xyD = 0;
 
@@ -151,8 +151,8 @@ public final class Constants {
         public static final double kP = 4.5;
         public static final double kI = 0;
         public static final double kD = 0.0005;
-        public static final double maxAcceleration = 100;
-        public static final double maxVelocity = 75;
+        public static final double maxAcceleration = 55;
+        public static final double maxVelocity = 20;
         public static final double elvevatorThrottle = 0.2;
 
         public static final double motorToElevatorRatio = 22.0 / (12.0 * 16.0);
@@ -172,7 +172,7 @@ public final class Constants {
 
     /** A set of constants relating to the arm. */
     public static class ArmConstants {
-        public static final int armPort = 12;
+        public static final int armPort = 13;
         public static final double staticGain = 0.30;
         public static final double gravityGain = 0.20;
         public static final double velocityGain = 3.65;
@@ -181,12 +181,12 @@ public final class Constants {
         public static final double kD = 0.0;
 
         public static final double coralState = 0.5035;
-        public static final double lowerAlgaeState = 0.085;
+        public static final double lowerAlgaeState = 0.09;
         public static final double upperAlgaeState = 0.51;
         public static final double bargeState = 0.38;
 
-        public static final double maxVelocity = 70;
-        public static final double maxAcceleration = 15;
+        public static final double maxVelocity = 40;
+        public static final double maxAcceleration = 5;
 
         public static final double armThrottle = 0.35;
 
@@ -196,7 +196,7 @@ public final class Constants {
 
     /** A set of constants relating to the claw. */
     public static class ClawConstants {
-        public static final int clawMotorPort = 13;
+        public static final int clawMotorPort = 12;
 
         public static final double clawMotorSpeed = 1.0;
     }

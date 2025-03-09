@@ -49,6 +49,7 @@ public class Auto {
         AutoTrajectory midFromLeft = fromLeft.trajectory("midFromLeft");
         AutoTrajectory midToScore = fromLeft.trajectory("midToScore");
         AutoTrajectory scoreToCoral = fromLeft.trajectory("leftScoreToAlgae");
+        AutoTrajectory alg2 = fromLeft.trajectory("alg2");
 
         fromLeft.active().onTrue(
             Commands.sequence(
@@ -59,6 +60,22 @@ public class Auto {
 
         midFromLeft.done().onTrue(midToScore.cmd());
         midToScore.done().onTrue(scoreToCoral.cmd());
+        scoreToCoral.done().onTrue(alg2.cmd());
+
+
+        alg2.atTime("spit")
+            .onTrue(claw.output);
+
+        alg2.atTime("up")
+            .onTrue(elevator.goToBottom)
+            .onTrue(arm.goToUpperAlgae);
+
+        alg2.atTime("down")
+            .onTrue(elevator.goToBottom)
+            .onTrue(arm.goToBottom);
+
+        midFromLeft.atTime("suck")
+            .onTrue(claw.slowHold);
 
         midToScore.atTime("goToScore")
             .onTrue(elevator.goToTop)
@@ -68,11 +85,11 @@ public class Auto {
             .onTrue(claw.output);
 
         midToScore.atTime("goDown")
-            .onTrue(elevator.goToBottom)
-            .onTrue(arm.goToUpperAlgae);
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
 
         scoreToCoral.atTime("suck")
-            .onTrue(claw.intake);
+            .onTrue(claw.slowHold);
 
         scoreToCoral.atTime("goToAlgae")
             .onTrue(elevator.goToMid)

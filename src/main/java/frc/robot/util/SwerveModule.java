@@ -263,7 +263,7 @@ public class SwerveModule extends SubsystemBase {
             absoluteTarget.multiplier
             * moduleState.speedMetersPerSecond
             * DriveConstants.speedModifier
-            * throttle
+            //* throttle
             * (nos ? DriveConstants.nosBooster : 1)
         );
     }
