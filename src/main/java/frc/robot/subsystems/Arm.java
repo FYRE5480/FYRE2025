@@ -111,7 +111,7 @@ public class Arm extends SubsystemBase {
         resetEncoders();
 
         armMotorConfig
-            .inverted(true);
+            .inverted(false);
 
         armMotorConfig.encoder
             .positionConversionFactor(ArmConstants.motorToArmRatio)
