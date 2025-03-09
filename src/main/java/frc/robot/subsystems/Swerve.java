@@ -6,7 +6,6 @@ import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -17,8 +16,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
+import frc.robot.util.Elastic;
 import frc.robot.util.SwerveModule;
 import java.util.concurrent.TimeUnit;
 
@@ -65,8 +66,8 @@ public class Swerve extends SubsystemBase {
         this.controllerInput = controller;
         this.visionSystem = visionSystem;
 
-        // TODO: change this dynamically depending on the starting pose of the robot
-        this.currentPose = new Pose2d(0, 0, new Rotation2d(0));
+        // pose of the swerve is initialized to real values in Auto when auto routine is run
+        this.currentPose = new Pose2d();
         this.field = new Field2d();
 
         // define the gyro
@@ -101,24 +102,40 @@ public class Swerve extends SubsystemBase {
 
         field.setRobotPose(currentPose);
 
-        // TODO add a timeout here or manual override to ensure setupComplete does not hold up entire robot
+        if (!setupComplete) {
+            setupCheck();
+            return;
+        }
 
-        // TODO maybe move this to constructor? or some other init function
-        //if (setupComplete) {
-            if (!DriverStation.isAutonomousEnabled())
-                swerveDrive(chooseDriveMode());
-        //} else setupCheck();
+        if (!DriverStation.isAutonomousEnabled()) swerveDrive(getDriveSpeeds());
     }
      
-    private ChassisSpeeds chooseDriveMode() {
+    /**
+     * Depending on the vision status, returns either chassis speeds based on controller inputs, or vision tag drive
+     * 
+     * @return ChassisSpeeds for the swerve drive to run
+     */
+    private ChassisSpeeds getDriveSpeeds() {
         VisionStatus status = controllerInput.visionStatus();
-        ChassisSpeeds speeds;
+        ChassisSpeeds speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
+
+        // if we are doing vision, then reset the gyro to prevent "whiplash"
+        if (controllerInput.visionStatus() != VisionStatus.NONE) {
+            controllerInput.setTurnTarget(gyroAhrs.getRotation2d().getRadians());
+        }
 
         switch (status) {
-            case ALIGN_TAG: // lines the robot up with the tag
-                speeds = visionSystem.alignTagSpeeds(0, null); 
+            case LEFT_POSITION: // lines the robot up with the tag
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.leftOffset);
+                break;
+            case RIGHT_POSITION: // lines the robot up with the tag
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.rightOffset);
+                break;
+            case STRAIGHT_POSITION: // lines the robot up with the tag
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.straightOffset);
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
+                // TODO: lock on with both cameras
                 ChassisSpeeds controllerSpeeds = controllerInput.controllerChassisSpeeds(
                     turnPID, gyroAhrs.getRotation2d());
                 ChassisSpeeds lockonSpeeds = visionSystem.lockonTagSpeeds(0, null);
@@ -128,13 +145,13 @@ public class Swerve extends SubsystemBase {
                     lockonSpeeds.omegaRadiansPerSecond
                 );
                 break;
-            case GET_CORAL:
-                speeds = visionSystem.getPieceDrive(0);
-                break;
             default: // if all else fails - revert to drive controls
                 speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
                 break;
         }
+
+        // this should never execute, but for our peace of mind
+        if (speeds == null) speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
 
         return speeds;
     }
@@ -195,6 +212,7 @@ public class Swerve extends SubsystemBase {
         }
 
         setupComplete = true;
+        Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.INFO, "Swerve Subsystem", "Swerve has been initialized!"));
         System.out.println("----------\nSetup Complete!\n----------");
         setSwerveEncoders(0);
         for (int i = 0; i < 4; i++) swerveModules[i].setSwerveReference(0);
@@ -223,6 +241,10 @@ public class Swerve extends SubsystemBase {
     public ChassisSpeeds getRobotState() {return swerveDriveKinematics.toChassisSpeeds(getSwerveModuleStates());}
 
     public Pose2d getPose() {return currentPose;} 
+
+    public void setPose(Pose2d pose) {
+        currentPose = pose;
+    }
 
     public void resetGyro() {
         gyroAhrs.reset();

@@ -48,7 +48,7 @@ public class RobotContainer {
     Vision visionSystem = new Vision(
         Constants.VisionConstants.ipAddress, 
         Constants.VisionConstants.CameraRotations, 
-        Constants.VisionConstants.apriltagAngles); 
+        null); 
 
     public Swerve swerve = new Swerve(controller, visionSystem);
 
@@ -131,11 +131,14 @@ public class RobotContainer {
         xboxController.leftBumper()
             .onTrue(controller.downShift);
 
-        xboxController.a()
-            .onChange(controller.toggleLockOn);
-
         xboxController.b()
-            .onChange(controller.toggleAlignTag);
+            .onChange(controller.toggleRightBumper);
+        
+        xboxController.x()
+            .onChange(controller.toggleLeftBumper);
+        
+        xboxController.a()
+            .onChange(controller.a);
 
         xboxController.y()
             .onTrue(climberControl.sendIt)

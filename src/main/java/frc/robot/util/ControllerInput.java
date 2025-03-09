@@ -18,9 +18,11 @@ public class ControllerInput extends SubsystemBase {
     /** Enumeration to represent what the robot should be doing with vision. */
     public enum VisionStatus {
         NONE,
-        ALIGN_TAG,
+        LEFT_POSITION,
+        RIGHT_POSITION,
+        STRAIGHT_POSITION,
         LOCKON,
-        GET_CORAL
+        CORAL,
     }
 
     private double x, y, theta, slider;
@@ -31,8 +33,9 @@ public class ControllerInput extends SubsystemBase {
     private boolean nos;
 
     private boolean fieldRelative = true;
-    private boolean alignWithTag;
-    private boolean lockOn;
+    private boolean leftBumper;
+    private boolean rightBumper;
+    private boolean coral = false;
 
     private VisionStatus visionStatus;
 
@@ -68,10 +71,19 @@ public class ControllerInput extends SubsystemBase {
         }
 
         slider = (joystick.getRawAxis(3) + 1) / 2;
-
-        if (alignWithTag) visionStatus = VisionStatus.ALIGN_TAG;
-        else if (lockOn) visionStatus = VisionStatus.LOCKON;
+        
+        if (leftBumper && rightBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
+        else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
+        else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
         else visionStatus = VisionStatus.NONE;
+
+        // rightBumper && leftBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
+        // else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
+        // else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
+    }
+
+    public void setTurnTarget(double target) {
+        turnTarget = target;
     }
 
     /**
@@ -127,13 +139,22 @@ public class ControllerInput extends SubsystemBase {
         fieldRelative = !fieldRelative;
     });
 
-    public Command toggleAlignTag = Commands.runOnce(() -> {
-        alignWithTag = !alignWithTag;
+    public Command toggleRightBumper = Commands.runOnce(() -> {
+        rightBumper = !rightBumper;
+    });
+
+    public Command toggleLeftBumper = Commands.runOnce(() -> {
+        leftBumper = !leftBumper;
     });
 
     public Command toggleLockOn = Commands.runOnce(() -> {
-        lockOn = !lockOn;
+        // lockOn = !lockOn;
     });
+
+    public Command a = Commands.runOnce(() -> {
+        coral = !coral;
+    });
+
 
     public boolean nos() {return nos;}
     public double throttle() {return throttle;}
