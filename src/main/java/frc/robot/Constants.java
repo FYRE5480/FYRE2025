@@ -215,13 +215,11 @@ public final class Constants {
         public static final double maxIntakeAngle = Math.PI/6;
         public static final double misallignedPieceOffset = Math.PI/12; // This is the angle to go at when the piece is misaligned and 1m away. It will be adjusted automatically for different angles.
         public static final int pieceDetectionCamIndex = 0; // Default camera index for piece detection
-
-        // Field relative (positive x is towards driver station, positive y is to left of driver station)
         public static Vision.RobotPositionOffset straightOffset = new Vision.RobotPositionOffset(0.25, 0, 0);
         public static Vision.RobotPositionOffset leftOffset = new Vision.RobotPositionOffset(0.25, 0.08, 0);
         public static Vision.RobotPositionOffset rightOffset = new Vision.RobotPositionOffset(0.25, -0.2, 0);
-
         public static double CoralYOffset = 0;
+
         public static double CoralXOffset = 0;
         public static double CoralAngleOffset = 0;
         public static int CoralCamIndex = 0;

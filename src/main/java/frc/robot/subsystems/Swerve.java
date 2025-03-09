@@ -5,10 +5,13 @@ import java.util.concurrent.TimeUnit;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import frc.robot.util.Elastic;
+
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -17,12 +20,13 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
-import frc.robot.util.Elastic;
 import frc.robot.util.SwerveModule;
 
 /**
@@ -136,6 +140,9 @@ public class Swerve extends SubsystemBase {
             case STRAIGHT_POSITION: // lines the robot up with the tag
                 speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.straightOffset);
                 break;
+            case CORAL:
+                speeds = visionSystem.getTagDrive(VisionConstants.CoralCamIndex, VisionConstants.tagIDs, Vision.Side.FRONT, VisionConstants.CoralXOffset, VisionConstants.CoralYOffset, VisionConstants.CoralAngleOffset);
+                break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
                 // TODO: lock on with both cameras
                 ChassisSpeeds controllerSpeeds = controllerInput.controllerChassisSpeeds(
@@ -147,6 +154,8 @@ public class Swerve extends SubsystemBase {
                     lockonSpeeds.omegaRadiansPerSecond
                 );
                 break;
+            // case GET_CORAL:
+            //     speeds = visionSystem.getPieceDrive();
             default: // if all else fails - revert to drive controls
                 speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
                 break;
