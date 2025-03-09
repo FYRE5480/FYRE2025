@@ -134,7 +134,7 @@ public class SwerveModule extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // absoluteEnoderConnected = getAbsolutePosition() != 0 && getAbsolutePosition() != 360;
+        absoluteEnoderConnected = getAbsolutePosition() != 0 && getAbsolutePosition() != 360;
         // if (!absoluteEnoderConnected && !errorSent) {
         //     Elastic.sendNotification(DriveConstants.encoderError);
         //     errorSent = true;
@@ -264,7 +264,7 @@ public class SwerveModule extends SubsystemBase {
             absoluteTarget.multiplier
             * moduleState.speedMetersPerSecond
             * DriveConstants.speedModifier
-            //* throttle
+            * throttle
             * (nos ? DriveConstants.nosBooster : 1)
         );
     }

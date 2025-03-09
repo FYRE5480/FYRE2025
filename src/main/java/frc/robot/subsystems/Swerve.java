@@ -102,11 +102,6 @@ public class Swerve extends SubsystemBase {
 
         field.setRobotPose(currentPose);
 
-        if (!setupComplete) {
-            setupCheck();
-            return;
-        }
-
         if (!DriverStation.isAutonomousEnabled()) swerveDrive(getDriveSpeeds());
     }
      

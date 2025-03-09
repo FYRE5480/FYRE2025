@@ -26,7 +26,7 @@ public class ClimberControl extends Command {
     public void execute() {}
 
     public Command sendIt = Commands.runOnce(() -> {
-        climber.climb(-1);
+        climber.climb(1);
     });
         
     public Command pinch = Commands.runOnce(() -> {

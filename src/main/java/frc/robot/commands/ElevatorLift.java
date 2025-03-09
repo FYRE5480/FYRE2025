@@ -41,7 +41,6 @@ public class ElevatorLift extends Command {
      * Sends the elevator to the bottom using PID.
      */
     public Command goToBottom = Commands.runOnce(() -> {
-        System.out.println("elevator going down");
         elevator.goToBottom();
     });
 
