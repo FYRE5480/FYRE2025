@@ -5,6 +5,9 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -19,11 +22,11 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Logging;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Vision;
 import frc.robot.util.Auto;
 import frc.robot.util.ControllerInput;
+import frc.robot.util.SwerveModule;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -39,6 +42,8 @@ public class RobotContainer {
     CommandJoystick joystick = new CommandJoystick(OperatorConstants.operatorControllerPort);
     CommandXboxController xboxController = new CommandXboxController(OperatorConstants.driverControllerPort);
     ControllerInput controller = new ControllerInput(xboxController, joystick);
+
+    PowerDistribution powerDistribution = new PowerDistribution(16, ModuleType.kRev);
 
     Vision visionSystem = new Vision(
         Constants.VisionConstants.ipAddress, 
@@ -67,8 +72,6 @@ public class RobotContainer {
     final AutoChooser autoChooser;
     Auto auto = new Auto(swerve, elevatorControl, clawControl, armControl);
 
-    Logging logging = new Logging(swerve);
-
     /**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
 	 */
@@ -83,13 +86,17 @@ public class RobotContainer {
         autoChooser.addRoutine("FromRight", auto::fromRight);
 
         SmartDashboard.putData("Autos", autoChooser);
-        SmartDashboard.updateValues();
 
         autoChooser.select("FromMid");
 
-        SmartDashboard.putData(swerve);
-        SmartDashboard.putData(swerve.field);
-        SmartDashboard.putData(swerve.gyroAhrs);
+        SmartDashboard.putData("Swerve", swerve);
+        SmartDashboard.putData("Field", swerve.field);
+        SmartDashboard.putData("Gyro", swerve.gyroAhrs);
+
+        SmartDashboard.putData("Power Distribution", powerDistribution);
+
+        // SwerveModule[] modules = swerve.getModules();
+        // for (int i = 0; i < 4; i++) {SmartDashboard.putData("Swerve Module " + i, modules[i]);}
 
         // Configure the trigger bindings
         configureBindings();
@@ -133,9 +140,13 @@ public class RobotContainer {
         xboxController.a()
             .onChange(controller.a);
 
+        xboxController.y()
+            .onTrue(climberControl.sendIt)
+            .onFalse(climberControl.stopClimber); 
+
         // manipulator bindings
         joystick.button(1)
-            .onTrue(clawControl.intake)
+            .onTrue(clawControl.intake) 
             .onFalse(clawControl.stopFast);
 
         joystick.button(2)

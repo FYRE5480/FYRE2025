@@ -62,7 +62,7 @@ public class Arm extends SubsystemBase {
     
     private TrapezoidProfile.State bottomState = new TrapezoidProfile.State(
         0,
-        0.05
+        0.0
     );
 
     private boolean manualOverride = false;
@@ -90,7 +90,7 @@ public class Arm extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         // check if the controller is not yet at it's goal and the manual override is not active
-        if (!(manualOverride)) {    
+        if (true){//!(manualOverride)) {    
             // set the setpoint to the controller
             armMotor.setVoltage(
                 // armFeedForward.calculate(
@@ -111,7 +111,7 @@ public class Arm extends SubsystemBase {
         resetEncoders();
 
         armMotorConfig
-            .inverted(true);
+            .inverted(false);
 
         armMotorConfig.encoder
             .positionConversionFactor(ArmConstants.motorToArmRatio)

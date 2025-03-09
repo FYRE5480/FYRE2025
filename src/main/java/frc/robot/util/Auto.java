@@ -48,7 +48,8 @@ public class Auto {
 
         AutoTrajectory midFromLeft = fromLeft.trajectory("midFromLeft");
         AutoTrajectory midToScore = fromLeft.trajectory("midToScore");
-        AutoTrajectory scoreToCoral = fromLeft.trajectory("scoreToCoral");
+        AutoTrajectory scoreToCoral = fromLeft.trajectory("leftScoreToAlgae");
+        AutoTrajectory alg2 = fromLeft.trajectory("alg2");
 
         // update current pose of robot to starting point of first trajectory
         if (midFromLeft.getInitialPose().isEmpty()) {
@@ -64,15 +65,49 @@ public class Auto {
             )
         );
 
-        // midFromLeft.done().onTrue(midToScore.cmd());
-        // midToScore.done().onTrue(scoreToCoral.cmd());
+        midFromLeft.done().onTrue(midToScore.cmd());
+        midToScore.done().onTrue(scoreToCoral.cmd());
+        scoreToCoral.done().onTrue(alg2.cmd());
+
+
+        alg2.atTime("spit")
+            .onTrue(claw.output);
+
+        alg2.atTime("suck")
+            .onTrue(claw.intake);
+
+        alg2.atTime("up")
+            .onTrue(elevator.goToBottom)
+            .onTrue(arm.goToUpperAlgae);
+
+        // this code is fine
+        alg2.atTime("asdf")
+            .onTrue(arm.goToBottom);
+
+        alg2.atTime("asdf")
+            .onTrue(elevator.goToBottom);
+
+        // the following code causes arm.goToBottom to run many, many times
+        // alg2.atTime("asdf")
+        //     .onTrue(elevator.goToBottom)
+        //     .onTrue(arm.goToBottom);
+
+        midFromLeft.atTime("slowSuck")
+            .onTrue(claw.slowHold);
 
         midToScore.atTime("goToScore")
-            .onTrue(elevator.goToMid)
-            .onTrue(arm.goToLowerAlgae);
+            .onTrue(elevator.goToTop)
+            .onTrue(arm.goToCoral);
 
         midToScore.atTime("spit")
             .onTrue(claw.output);
+
+        midToScore.atTime("goDown")
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
+
+        scoreToCoral.atTime("suck")
+            .onTrue(claw.intake);
 
         scoreToCoral.atTime("goToAlgae")
             .onTrue(elevator.goToMid)
