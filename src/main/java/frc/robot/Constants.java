@@ -253,6 +253,8 @@ public final class Constants {
 
         public static final int maxFrameRate = 30;
 
+        public static final int numExpectedCams = 2;
+
         public static Vision.CameraPair cameraPair = new Vision.CameraPair(0, Math.PI/6+0.165,0.22, 0.005, 1, -Math.PI/6 - 0.08015, 0.3541, 0.11627);
         /** Constructs apriltags angles hashmap. */
         public VisionConstants() {
