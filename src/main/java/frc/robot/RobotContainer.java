@@ -93,6 +93,8 @@ public class RobotContainer {
         SmartDashboard.putData("Field", swerve.field);
         SmartDashboard.putData("Gyro", swerve.gyroAhrs);
 
+        SmartDashboard.putData("Vision", visionSystem);
+
         SmartDashboard.putData("Power Distribution", powerDistribution);
 
         // SwerveModule[] modules = swerve.getModules();
