@@ -258,6 +258,7 @@ public class Vision extends SubsystemBase {
             System.out.println("No tags found for camera " + camIndex);
             return null;
         }
+        prevTime = timer.get();
 
         double horizontalAngle = -tag.horizontalAngle + cameraHorizontalAngle/2;
         double tagAngle = -tag.orientation[1] + cameraHorizontalAngle/2;
