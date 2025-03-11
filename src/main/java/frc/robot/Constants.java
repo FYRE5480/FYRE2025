@@ -189,7 +189,7 @@ public final class Constants {
         public static final double maxVelocity = 40;
         public static final double maxAcceleration = 5;
 
-        public static final double armThrottle = 0.35;
+        public static final double armThrottle = 0.65;
 
         public static final double motorToArmRatio = 1 / 187.5;
 
