@@ -30,6 +30,7 @@ public class Vision {
     private PIDController movePID = new PIDController(Constants.VisionConstants.moveP, Constants.VisionConstants.moveI, Constants.VisionConstants.moveD);
     private ChassisSpeeds prevChassisSpeeds;
     private double prevTime;
+    private VisionSystemState state = VisionSystemState.IDLE;
 
     public static class CameraPair{
         public int cam1;
@@ -66,6 +67,13 @@ public class Vision {
         }
     }
     
+    public static enum VisionSystemState {
+        IDLE, // Vision is not in control of the robot
+        DRIVING, // Actively driving to a target
+        ALIGNED, // If you cant tell what this means then you should not be on programming
+        NO_PATH // No path to the target / no apriltag in view and the smoothing has run out
+    }
+
     public Vision(String ipAddress, int[] cameraRotation, HashMap<String, Integer[]> apriltagPoses) {
         // This constructor is not ideal but it works for the example. IRL you would want to use the other constructor so you can still have a list of cameras outside of the Interface.
         // Maybe I will make this the only class that you need to use with the cameras then it will be fine.
@@ -117,25 +125,20 @@ public class Vision {
         }
     }
 
-    public ChassisSpeeds frontToSide(ChassisSpeeds inSpeeds, Side side){
-        switch(side) {
-            case FRONT:
-                return inSpeeds;
-            case LEFT:
-                return new ChassisSpeeds(inSpeeds.vyMetersPerSecond, -inSpeeds.vxMetersPerSecond, inSpeeds.omegaRadiansPerSecond);
-            case RIGHT:
-                return new ChassisSpeeds(-inSpeeds.vyMetersPerSecond, inSpeeds.vxMetersPerSecond, inSpeeds.omegaRadiansPerSecond);
-            case BACK:
-                return new ChassisSpeeds(-inSpeeds.vxMetersPerSecond, -inSpeeds.vyMetersPerSecond, inSpeeds.omegaRadiansPerSecond);
-            default:
-                return inSpeeds;
-          }
-          
+    public void setIdle(){
+        state = VisionSystemState.IDLE;
+    }
+
+    public VisionSystemState getVisionState(){
+        if (timer.get() - prevTime > VisionConstants.timeout) {
+            state = VisionSystemState.IDLE;
+        }
+        return state;
     }
 
     public double getZAngle(int maxTags) {
         // This function returns the average calculated angle of the robot in degrees on the z axis, aka the only one the robot turns on. Limit the number of tags to use with maxTags if you want.
-
+        
         double ZAngle = 0;
         double numTags = 0;
         for(CameraWebsocketClient cam : camClientList) {
@@ -175,6 +178,7 @@ public class Vision {
      * @return speeds - the ChassisSpeeds object for the rotation to take
      */
     public ChassisSpeeds lockonTagSpeeds(int camIndex, String tagId) {
+        state = VisionSystemState.DRIVING;
         Apriltag tag;
         if (tagId != null) tag = decideTag(camIndex, tagId);
         else tag = decideTag(camIndex);
@@ -232,6 +236,65 @@ public class Vision {
         return position;
     }
 
+    public ChassisSpeeds getTagDrive(int camIndex, String[] tagIds, Side side, double angleOffset, double xOffset, double yOffset) {
+        
+        Transform2d averagedPosition = getTagRelativePosition(camIndex, tagIds, side, angleOffset + angleOffset, xOffset, yOffset);
+
+        if (averagedPosition == null) {
+            if (prevChassisSpeeds != null && timer.get() - prevTime < VisionConstants.timeout) {
+                prevChassisSpeeds = new ChassisSpeeds(
+                    prevChassisSpeeds.vxMetersPerSecond * VisionConstants.noTagDecay,
+                    prevChassisSpeeds.vyMetersPerSecond * VisionConstants.noTagDecay,
+                    prevChassisSpeeds.omegaRadiansPerSecond * VisionConstants.noTagDecay
+                );
+                return new ChassisSpeeds(
+                    prevChassisSpeeds.vxMetersPerSecond,
+                    prevChassisSpeeds.vyMetersPerSecond,
+                    prevChassisSpeeds.omegaRadiansPerSecond
+                );
+            } else {
+                state = VisionSystemState.NO_PATH;
+                return null;
+            }
+        }
+
+        double xDist = averagedPosition.getX();
+        double yDist = averagedPosition.getY();
+        double totDist = Math.sqrt(xDist * xDist + yDist * yDist);
+
+        state = VisionSystemState.DRIVING;
+
+        double turnSpeed = 0;
+        if (averagedPosition.getRotation().getRadians() > VisionConstants.angleTollerance) {
+            turnSpeed = turnPID.calculate(averagedPosition.getRotation().getRadians());
+        }
+
+        
+        double moveSpeed = 0;
+        if (totDist > VisionConstants.distanceTollerance) {
+            moveSpeed = movePID.calculate(totDist);
+        }
+
+        if (moveSpeed == 0 && turnSpeed == 0) {
+            state = VisionSystemState.ALIGNED;
+        }
+
+        double xMove = (xDist / totDist) * moveSpeed;
+        double yMove = (-yDist / totDist) * moveSpeed;
+
+        System.out.println("Averaged X Distance: " + xDist);
+        System.out.println("Averaged Y Distance: " + yDist);
+        System.out.println("Averaged Tag Angle: " + averagedPosition.getRotation().getRadians());
+
+        ChassisSpeeds speeds = new ChassisSpeeds(
+            DriveConstants.highDriveSpeed * xMove,
+            DriveConstants.highDriveSpeed * yMove,
+            -turnSpeed
+        );
+
+        return speeds;
+    }
+
     public ChassisSpeeds getTagDrive(CameraPair cams, String[] tagIds, Side side, RobotPositionOffset offsets) {
         double angleOffset = offsets.angleOffset;
         double xOffset = offsets.xOffset;
@@ -241,6 +304,24 @@ public class Vision {
         Transform2d cam2Position = getTagRelativePosition(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset);
 
         Transform2d averagedPosition = new Transform2d();
+
+        if (cam2Position == null && cam1Position == null) {
+            if (prevChassisSpeeds != null && timer.get() - prevTime < VisionConstants.timeout) {
+                prevChassisSpeeds = new ChassisSpeeds(
+                    prevChassisSpeeds.vxMetersPerSecond * VisionConstants.noTagDecay,
+                    prevChassisSpeeds.vyMetersPerSecond * VisionConstants.noTagDecay,
+                    prevChassisSpeeds.omegaRadiansPerSecond * VisionConstants.noTagDecay
+                );
+                return new ChassisSpeeds(
+                    prevChassisSpeeds.vxMetersPerSecond,
+                    prevChassisSpeeds.vyMetersPerSecond,
+                    prevChassisSpeeds.omegaRadiansPerSecond
+                );
+            } else {
+                state = VisionSystemState.NO_PATH;
+                return null;
+            }
+        }
 
         if (cam1Position != null){
             averagedPosition.plus(cam1Position);
@@ -258,8 +339,21 @@ public class Vision {
         double yDist = averagedPosition.getY();
         double totDist = Math.sqrt(xDist * xDist + yDist * yDist);
 
-        double turnSpeed = turnPID.calculate(averagedPosition.getRotation().getRadians());   
-        double moveSpeed = movePID.calculate(totDist);
+        state = VisionSystemState.DRIVING;
+
+        double turnSpeed = 0;
+        if (averagedPosition.getRotation().getRadians() > VisionConstants.angleTollerance) {
+            turnSpeed = turnPID.calculate(averagedPosition.getRotation().getRadians());
+        }
+
+        double moveSpeed = 0;
+        if (totDist > VisionConstants.distanceTollerance) {
+            moveSpeed = movePID.calculate(totDist);
+        }
+
+        if (moveSpeed == 0 && turnSpeed == 0) {
+            state = VisionSystemState.ALIGNED;
+        }
 
         double xMove = (xDist / totDist) * moveSpeed;
         double yMove = (-yDist / totDist) * moveSpeed;
@@ -318,6 +412,10 @@ public class Vision {
     }
 
     private Apriltag decideTag(int camIndex) {
+        if (camIndex < 0 || camIndex >= camClientList.size()) {
+            System.out.println("Invalid camera index: " + camIndex); // TODO: Log this
+            return null;
+        }
         CameraWebsocketClient cam = camClientList.get(camIndex);
         List<CameraWebsocketClient.Apriltag> tags = cam.getApriltags();
         Apriltag tag = null;
@@ -336,6 +434,10 @@ public class Vision {
     }
 
     private Apriltag decideTag(int camIndex, String tagId) {
+        if (camIndex < 0 || camIndex >= camClientList.size()) {
+            System.out.println("Invalid camera index: " + camIndex); // TODO: Log this
+            return null;
+        }
         CameraWebsocketClient cam = camClientList.get(camIndex);
         List<CameraWebsocketClient.Apriltag> tags = cam.getApriltags();
         Apriltag tag = null;
@@ -350,6 +452,10 @@ public class Vision {
     }
 
     private Apriltag decideTag(int camIndex, String tagIds[]) {
+        if (camIndex < 0 || camIndex >= camClientList.size()) {
+            System.out.println("Invalid camera index: " + camIndex); // TODO: Log this
+            return null;
+        }
         CameraWebsocketClient cam = camClientList.get(camIndex);
         List<CameraWebsocketClient.Apriltag> tags = cam.getApriltags();
         List<String> tagIdList = Arrays.asList(tagIds);
