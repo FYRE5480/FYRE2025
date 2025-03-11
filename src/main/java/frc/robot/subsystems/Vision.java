@@ -408,7 +408,6 @@ public class Vision extends SubsystemBase {
             turnSpeed = turnPID.calculate(averagedPosition.getRotation().getRadians());
         }
 
-        System.out.println(totDist);
         double moveSpeed = 0;
         if (totDist > VisionConstants.distanceTollerance) {
             moveSpeed = movePID.calculate(totDist);
