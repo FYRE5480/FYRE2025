@@ -131,14 +131,14 @@ public class RobotContainer {
         xboxController.leftBumper()
             .onTrue(controller.downShift);
 
-        xboxController.b()
-            .onChange(controller.toggleRightBumper);
-        
-        xboxController.x()
-            .onChange(controller.toggleLeftBumper);
-        
-        xboxController.a()
-            .onChange(controller.a);
+        xboxController.povLeft()
+            .onTrue(controller.toggleLeftAlign);
+
+        xboxController.povRight()
+            .onTrue(controller.toggleRightAlign);
+
+        xboxController.povUp()
+            .onTrue(controller.toggleStraightAlign);
 
         xboxController.y()
             .onTrue(climberControl.sendIt)

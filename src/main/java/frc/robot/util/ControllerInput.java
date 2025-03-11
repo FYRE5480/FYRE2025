@@ -33,8 +33,9 @@ public class ControllerInput extends SubsystemBase {
     private boolean nos;
 
     private boolean fieldRelative = true;
-    private boolean leftBumper;
-    private boolean rightBumper;
+    private boolean leftAlign;
+    private boolean rightAlign;
+    private boolean straightAlign;
     private boolean coral = false;
 
     private VisionStatus visionStatus;
@@ -72,9 +73,9 @@ public class ControllerInput extends SubsystemBase {
 
         slider = (joystick.getRawAxis(3) + 1) / 2;
         
-        if (leftBumper && rightBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
-        else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
-        else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
+        if (straightAlign) visionStatus = VisionStatus.STRAIGHT_POSITION;
+        else if (leftAlign) visionStatus = VisionStatus.LEFT_POSITION;
+        else if (rightAlign) visionStatus = VisionStatus.RIGHT_POSITION;
         else visionStatus = VisionStatus.NONE;
 
         // rightBumper && leftBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
@@ -139,12 +140,16 @@ public class ControllerInput extends SubsystemBase {
         fieldRelative = !fieldRelative;
     });
 
-    public Command toggleRightBumper = Commands.runOnce(() -> {
-        rightBumper = !rightBumper;
+    public Command toggleLeftAlign = Commands.runOnce(() -> {
+        leftAlign = !leftAlign;
     });
 
-    public Command toggleLeftBumper = Commands.runOnce(() -> {
-        leftBumper = !leftBumper;
+    public Command toggleRightAlign = Commands.runOnce(() -> {
+        rightAlign = !rightAlign;
+    });
+
+    public Command toggleStraightAlign = Commands.runOnce(() -> {
+        straightAlign = !straightAlign;
     });
 
     public Command toggleLockOn = Commands.runOnce(() -> {

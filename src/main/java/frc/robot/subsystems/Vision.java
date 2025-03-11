@@ -4,21 +4,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.awt.Color;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.util.CameraWebsocketClient;
 import frc.robot.util.CameraWebsocketClient.Apriltag;
 import frc.robot.util.CameraWebsocketClient.Info;
+import frc.robot.util.Elastic;
 
 
-public class Vision {
+
+public class Vision extends SubsystemBase {
     public static enum Side {FRONT, LEFT, BACK, RIGHT}
 
     private String ip;
@@ -31,6 +37,7 @@ public class Vision {
     private ChassisSpeeds prevChassisSpeeds;
     private double prevTime;
     private VisionSystemState state = VisionSystemState.IDLE;
+    private int numCams = 0;
 
     public static class CameraPair{
         public int cam1;
@@ -96,7 +103,11 @@ public class Vision {
             } else {
                 failed = true;
             }
+            if (i == VisionConstants.numExpectedCams) {
+                failed = true;
+            }
         }
+        numCams = i;
 
         turnPID.enableContinuousInput(-180, 180);
         turnPID.setSetpoint(0);
@@ -117,6 +128,43 @@ public class Vision {
         turnPID.setSetpoint(0);
         movePID.enableContinuousInput(-180, 180);
         movePID.setSetpoint(0);
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+
+        builder.setSmartDashboardType("Vision System");     
+
+        builder.addStringProperty("Aligning Status", () -> colorToHex(getCurrentColor()), null);
+
+        builder.addBooleanProperty("Camera 1", () -> 
+            getCamConnected(1), null);
+        builder.addBooleanProperty("Camera 2", () -> 
+            getCamConnected(2), null);
+
+    }
+        
+
+    private boolean getCamConnected(int i) {
+        return numCams>=i;
+    }
+
+    private Color getCurrentColor() {
+        switch (state) {
+            case IDLE:
+                return Color.BLUE;
+            case DRIVING:
+                return Color.YELLOW;
+            case ALIGNED:
+                return Color.GREEN;
+            case NO_PATH:
+                return Color.RED;
+        }
+        return Color.BLUE;
+    }
+
+    private String colorToHex(Color color) {
+        return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 
     public void clear(){
