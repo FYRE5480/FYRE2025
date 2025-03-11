@@ -11,6 +11,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants.VisionConstants;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,6 +30,9 @@ public class CameraWebsocketClient {
     private volatile String latestReply = "";
     private CountDownLatch messageLatch = new CountDownLatch(1);
     private final int TIMEOUT;
+    private double minFrameTime = 1.0 / VisionConstants.maxFrameRate;
+    private Timer timer = new Timer();
+    private double lastFrameTime = 0.0;
 
     /** Simple class representing a color object. */
     public static class Color {
@@ -115,7 +121,11 @@ public class CameraWebsocketClient {
     }
 
     public void sendMessage(String message) {
+        if (timer.get() - lastFrameTime < minFrameTime) {
+            return;
+        }
         webSocket.sendText(message, true);
+        lastFrameTime = timer.get();
     }
 
     /**

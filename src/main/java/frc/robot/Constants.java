@@ -245,6 +245,14 @@ public final class Constants {
         public static final double moveI = 0.0;
         public static final double moveD = 0.0;
 
+        public static final double angleTollerance = 0.05;
+        public static final double distanceTollerance = 0.05;
+
+        public static final double timeout = 0.5;
+        public static final double noTagDecay = 0.95;
+
+        public static final int maxFrameRate = 30;
+
         public static Vision.CameraPair cameraPair = new Vision.CameraPair(0, Math.PI/6+0.165,0.22, 0.005, 1, -Math.PI/6 - 0.08015, 0.3541, 0.11627);
         /** Constructs apriltags angles hashmap. */
         public VisionConstants() {
