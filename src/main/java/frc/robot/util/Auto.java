@@ -49,7 +49,7 @@ public class Auto {
         AutoTrajectory midFromLeft = fromLeft.trajectory("midFromLeft");
         AutoTrajectory midToScore = fromLeft.trajectory("midToScore");
         AutoTrajectory scoreToCoral = fromLeft.trajectory("leftScoreToAlgae");
-        AutoTrajectory alg2 = fromLeft.trajectory("alg2");
+        AutoTrajectory alg2 = fromLeft.trajectory("alg2-test");
 
         // update current pose of robot to starting point of first trajectory
         if (midFromLeft.getInitialPose().isEmpty()) {
@@ -80,12 +80,10 @@ public class Auto {
             .onTrue(elevator.goToBottom)
             .onTrue(arm.goToUpperAlgae);
 
-        // this code is fine
-        alg2.atTime("asdf")
-            .onTrue(arm.goToBottom);
 
-        alg2.atTime("asdf")
-            .onTrue(elevator.goToBottom);
+        alg2.atTime("down")
+            .onTrue(elevator.goToBottom)
+            .onTrue(claw.stopWheels );
 
         // the following code causes arm.goToBottom to run many, many times
         // alg2.atTime("asdf")

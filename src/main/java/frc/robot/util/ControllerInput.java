@@ -27,7 +27,7 @@ public class ControllerInput extends SubsystemBase {
 
     private double x, y, theta, slider;
 
-    private double throttle = 0.6;
+    private double throttle = 1.0;
 
     // enables / disables "full throttle" on the drive wheels
     private boolean nos;
