@@ -138,6 +138,7 @@ public class Swerve extends SubsystemBase {
                 break;
             default: // if all else fails - revert to drive controls
                 speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
+                visionSystem.setIdle();
                 break;
         }
 
