@@ -320,6 +320,7 @@ public class Vision extends SubsystemBase {
 
         
         double moveSpeed = 0;
+        System.out.println(totDist);
         if (totDist > VisionConstants.distanceTollerance) {
             moveSpeed = movePID.calculate(totDist);
         }
@@ -357,23 +358,23 @@ public class Vision extends SubsystemBase {
         double averagedAnglePos = 0.0;
         Transform2d averagedPosition = new Transform2d();
 
-        if (cam2Position == null && cam1Position == null) {
-            if (prevChassisSpeeds != null && timer.get() - prevTime < VisionConstants.timeout) {
-                prevChassisSpeeds = new ChassisSpeeds(
-                    prevChassisSpeeds.vxMetersPerSecond * VisionConstants.noTagDecay,
-                    prevChassisSpeeds.vyMetersPerSecond * VisionConstants.noTagDecay,
-                    prevChassisSpeeds.omegaRadiansPerSecond * VisionConstants.noTagDecay
-                );
-                return new ChassisSpeeds(
-                    prevChassisSpeeds.vxMetersPerSecond,
-                    prevChassisSpeeds.vyMetersPerSecond,
-                    prevChassisSpeeds.omegaRadiansPerSecond
-                );
-            } else {
-                state = VisionSystemState.NO_PATH;
-                return null;
-            }
-        }
+        // if (cam2Position == null && cam1Position == null) {
+        //     if (prevChassisSpeeds != null && timer.get() - prevTime < VisionConstants.timeout) {
+        //         prevChassisSpeeds = new ChassisSpeeds(
+        //             prevChassisSpeeds.vxMetersPerSecond * VisionConstants.noTagDecay,
+        //             prevChassisSpeeds.vyMetersPerSecond * VisionConstants.noTagDecay,
+        //             prevChassisSpeeds.omegaRadiansPerSecond * VisionConstants.noTagDecay
+        //         );
+        //         return new ChassisSpeeds(
+        //             prevChassisSpeeds.vxMetersPerSecond,
+        //             prevChassisSpeeds.vyMetersPerSecond,
+        //             prevChassisSpeeds.omegaRadiansPerSecond
+        //         );
+        //     } else {
+        //         state = VisionSystemState.NO_PATH;
+        //         return null;
+        //     }
+        // }
 
         if (cam1Position != null){
             averagedXPos += cam1Position.getX();
@@ -408,6 +409,7 @@ public class Vision extends SubsystemBase {
             turnSpeed = turnPID.calculate(averagedPosition.getRotation().getRadians());
         }
 
+        System.out.println(totDist);
         double moveSpeed = 0;
         if (totDist > VisionConstants.distanceTollerance) {
             moveSpeed = movePID.calculate(totDist);
