@@ -134,13 +134,13 @@ public class RobotContainer {
             .onTrue(controller.downShift);
 
         xboxController.povLeft()
-            .onTrue(controller.toggleLeftAlign);
+            .onChange(controller.toggleLeftAlign);
 
         xboxController.povRight()
-            .onTrue(controller.toggleRightAlign);
+            .onChange(controller.toggleRightAlign);
 
         xboxController.povUp()
-            .onTrue(controller.toggleStraightAlign);
+            .onChange(controller.toggleStraightAlign);
 
         xboxController.y()
             .onTrue(climberControl.sendIt)

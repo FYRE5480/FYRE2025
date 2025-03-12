@@ -5,7 +5,68 @@
     {
       "name": "Teleoperated",
       "grid_layout": {
-        "layouts": [],
+        "layouts": [
+          {
+            "title": "Vision",
+            "x": 1152.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Camera 1",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard/Vision/Camera 1",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Camera 2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard/Vision/Camera 2",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Aligning Status",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/SmartDashboard/Vision/Aligning Status",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              }
+            ]
+          }
+        ],
         "containers": [
           {
             "title": "Swerve",
@@ -23,9 +84,9 @@
           },
           {
             "title": "Autos",
-            "x": 0.0,
-            "y": 512.0,
-            "width": 384.0,
+            "x": 1152.0,
+            "y": 0.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Split Button Chooser",
             "properties": {
@@ -74,7 +135,7 @@
           {
             "title": "Match Time",
             "x": 896.0,
-            "y": 384.0,
+            "y": 256.0,
             "width": 256.0,
             "height": 256.0,
             "type": "Match Time",

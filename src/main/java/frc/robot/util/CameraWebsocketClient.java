@@ -121,9 +121,9 @@ public class CameraWebsocketClient {
     }
 
     public void sendMessage(String message) {
-        if (timer.get() - lastFrameTime < minFrameTime) {
-            return;
-        }
+        // if (timer.get() - lastFrameTime < minFrameTime) {
+        //     return;
+        // }
         webSocket.sendText(message, true);
         lastFrameTime = timer.get();
     }
