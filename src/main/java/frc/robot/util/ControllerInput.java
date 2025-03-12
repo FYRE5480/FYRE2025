@@ -126,13 +126,16 @@ public class ControllerInput extends SubsystemBase {
     });
 
     public Command upShift = Commands.runOnce(() -> {
-        if (throttle < 1)
-            throttle += 0.2;
+        throttle += 0.2;
+        if (throttle > 1)
+            throttle = 1;
+
     });
 
     public Command downShift = Commands.runOnce(() -> {
-        if (throttle > 0)
-            throttle -= 0.2;
+        throttle -= 0.2;
+        if (throttle < 0)
+            throttle = 0;
     });
 
     public Command toggleFeildRelative = Commands.runOnce(() -> {
