@@ -229,7 +229,7 @@ public final class Constants {
 
         // Positive x is away from reef, positive y is to left of reef
         public static Vision.RobotPositionOffset straightOffset = new Vision.RobotPositionOffset(0.25, 0, 0);
-        public static Vision.RobotPositionOffset leftOffset = new Vision.RobotPositionOffset(0.0, 0.0, 0); // 0.25, 0.08, 0
+        public static Vision.RobotPositionOffset leftOffset = new Vision.RobotPositionOffset(0.25, 0.08, 0); // 0.25, 0.08, 0
         public static Vision.RobotPositionOffset rightOffset = new Vision.RobotPositionOffset(0.25, -0.2, 0);
 
         public static double CoralYOffset = 0;
@@ -245,8 +245,8 @@ public final class Constants {
         public static final double moveI = 0.0;
         public static final double moveD = 0.0;
 
-        public static final double angleTollerance = 0.0;
-        public static final double distanceTollerance = 0.0;
+        public static final double angleTollerance = 2 * 0.01745329; // The last constant is degrees to radians, so you would do like 5 * 0.0174... for 5 deg
+        public static final double distanceTollerance = 2 * 0.0254; // inches to meters
 
         public static final double timeout = 0.5;
         public static final double noTagDecay = 0.95;
