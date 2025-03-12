@@ -320,6 +320,7 @@ public class Vision extends SubsystemBase {
 
         
         double moveSpeed = 0;
+        System.out.println(totDist);
         if (totDist > VisionConstants.distanceTollerance) {
             moveSpeed = movePID.calculate(totDist);
         }
@@ -352,37 +353,51 @@ public class Vision extends SubsystemBase {
         Transform2d cam1Position = getTagRelativePosition(cams.cam1, tagIds, side, cams.cam1Angle + angleOffset, cams.cam1XOffset + xOffset, cams.cam1YOffset + yOffset);
         Transform2d cam2Position = getTagRelativePosition(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset);
 
+        double averagedXPos = 0.0;
+        double averagedYPos = 0.0;
+        double averagedAnglePos = 0.0;
         Transform2d averagedPosition = new Transform2d();
 
-        if (cam2Position == null && cam1Position == null) {
-            if (prevChassisSpeeds != null && timer.get() - prevTime < VisionConstants.timeout) {
-                prevChassisSpeeds = new ChassisSpeeds(
-                    prevChassisSpeeds.vxMetersPerSecond * VisionConstants.noTagDecay,
-                    prevChassisSpeeds.vyMetersPerSecond * VisionConstants.noTagDecay,
-                    prevChassisSpeeds.omegaRadiansPerSecond * VisionConstants.noTagDecay
-                );
-                return new ChassisSpeeds(
-                    prevChassisSpeeds.vxMetersPerSecond,
-                    prevChassisSpeeds.vyMetersPerSecond,
-                    prevChassisSpeeds.omegaRadiansPerSecond
-                );
-            } else {
-                state = VisionSystemState.NO_PATH;
-                return null;
-            }
-        }
+        // if (cam2Position == null && cam1Position == null) {
+        //     if (prevChassisSpeeds != null && timer.get() - prevTime < VisionConstants.timeout) {
+        //         prevChassisSpeeds = new ChassisSpeeds(
+        //             prevChassisSpeeds.vxMetersPerSecond * VisionConstants.noTagDecay,
+        //             prevChassisSpeeds.vyMetersPerSecond * VisionConstants.noTagDecay,
+        //             prevChassisSpeeds.omegaRadiansPerSecond * VisionConstants.noTagDecay
+        //         );
+        //         return new ChassisSpeeds(
+        //             prevChassisSpeeds.vxMetersPerSecond,
+        //             prevChassisSpeeds.vyMetersPerSecond,
+        //             prevChassisSpeeds.omegaRadiansPerSecond
+        //         );
+        //     } else {
+        //         state = VisionSystemState.NO_PATH;
+        //         return null;
+        //     }
+        // }
 
         if (cam1Position != null){
+            averagedXPos += cam1Position.getX();
+            averagedYPos += cam1Position.getY();
+            averagedAnglePos += cam1Position.getRotation().getRadians();
             averagedPosition.plus(cam1Position);
+            System.out.println("Adding Cam 0");
         }
         if (cam2Position != null){
-            averagedPosition.plus(cam2Position);
+            averagedXPos += cam2Position.getX();
+            averagedYPos += cam2Position.getY();
+            averagedAnglePos += cam2Position.getRotation().getRadians();
+            System.out.println("Adding Cam 1");
         }
 
         // average out averagedPosition if both positions are not null
         if (cam1Position != null && cam2Position != null) {
-            averagedPosition.div(2);
+            averagedXPos /= 2;
+            averagedYPos /= 2;
+            averagedAnglePos /= 2;
         }
+
+        averagedPosition = new Transform2d(averagedXPos, averagedYPos, new Rotation2d(averagedAnglePos));
 
         double xDist = averagedPosition.getX();
         double yDist = averagedPosition.getY();
@@ -395,6 +410,7 @@ public class Vision extends SubsystemBase {
             turnSpeed = turnPID.calculate(averagedPosition.getRotation().getRadians());
         }
 
+        System.out.println(totDist);
         double moveSpeed = 0;
         if (totDist > VisionConstants.distanceTollerance) {
             moveSpeed = movePID.calculate(totDist);
