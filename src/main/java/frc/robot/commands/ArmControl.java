@@ -35,7 +35,6 @@ public class ArmControl extends Command {
     });
 
     public Command goToUpperAlgae = Commands.runOnce(() -> {
-        System.out.println("Moving arm to upper algae");
         arm.goToUpperAlgae();
     });
 
@@ -47,7 +46,6 @@ public class ArmControl extends Command {
      * Sends the arm to the bottom using PID.
      */
     public Command goToBottom = Commands.runOnce(() -> {
-        System.out.println("arm going down");
         arm.goToBottom();
     });
 

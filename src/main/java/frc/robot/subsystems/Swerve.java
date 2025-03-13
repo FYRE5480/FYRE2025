@@ -19,9 +19,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
-import frc.robot.util.Elastic;
 import frc.robot.util.SwerveModule;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The physical subsystem that controls the drivetrain.
@@ -51,8 +49,6 @@ public class Swerve extends SubsystemBase {
     );
 
     private double startTime = Timer.getTimestamp();
-
-    boolean setupComplete = false;
 
     /**
      * Constructs a swerve subsystem with the given controller and vision systems.
@@ -112,7 +108,7 @@ public class Swerve extends SubsystemBase {
      */
     private ChassisSpeeds getDriveSpeeds() {
         VisionStatus status = controllerInput.visionStatus();
-        ChassisSpeeds speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
+        ChassisSpeeds speeds;
 
         // if we are doing vision, then reset the gyro to prevent "whiplash"
         if (controllerInput.visionStatus() != VisionStatus.NONE) {
@@ -198,23 +194,6 @@ public class Swerve extends SubsystemBase {
     }
 
 
-    private void setupCheck() {
-        visionSystem.clear();
-        for (int i = 0; i < 4; i++) {
-            if (swerveModules[i].setupCheck()) {
-                //System.out.println(i);
-                return;
-            }
-        }
-
-        setupComplete = true;
-        Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.INFO, "Swerve Subsystem", "Swerve has been initialized!"));
-        System.out.println("----------\nSetup Complete!\n----------");
-        setSwerveEncoders(0);
-        for (int i = 0; i < 4; i++) swerveModules[i].setSwerveReference(0);
-        try {TimeUnit.MILLISECONDS.sleep(20);} catch (InterruptedException e) {e.getStackTrace();} // TODO try removing this delay?
-    }
-
     private void setupModules() {
         System.out.println("Setting up swerve modules");
 
@@ -259,10 +238,8 @@ public class Swerve extends SubsystemBase {
      * @param pose - the pose that the robot should assume
      */
     public void resetOdometry(Pose2d pose) {
-        //resetEncoders();
-
-        //gyroAhrs.reset();
-        //gyroAhrs.setAngleAdjustment(pose.getRotation().getDegrees());
+        gyroAhrs.reset();
+        gyroAhrs.setAngleAdjustment(pose.getRotation().getDegrees());
 
         currentPose = pose;
         poseEstimator.resetPose(pose);
