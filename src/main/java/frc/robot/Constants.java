@@ -182,8 +182,8 @@ public final class Constants {
         public static final double kD = 0.0;
 
         public static final double coralState = 0.5035;
-        public static final double lowerAlgaeState = 0.09;
-        public static final double upperAlgaeState = 0.51;
+        public static final double lowerAlgaeState = 0.10;
+        public static final double upperAlgaeState = 0.58;
         public static final double bargeState = 0.38;
 
         public static final double maxVelocity = 40;

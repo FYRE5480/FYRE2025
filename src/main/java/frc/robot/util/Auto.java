@@ -118,7 +118,7 @@ public class Auto {
         //     .onTrue(elevator.goToBottom)
         //     .onTrue(arm.goToBottom);
 
-        startLeft.atTime("slowSuck")
+        startLeft.atTime("slowHold")
             .onTrue(claw.slowHold);
 
         leftToScore.atTime("goToScore")

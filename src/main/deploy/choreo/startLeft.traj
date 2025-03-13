@@ -82,5 +82,6 @@
     {"t":1.27243, "x":5.62084, "y":5.92202, "heading":2.60788, "vx":-2.20539, "vy":-2.03036, "omega":2.55988, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
   "splits":[0]
  },
- "events":[]
+ "events":[
+   {"name":"slowHold", "from":{"target":0, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
 }
