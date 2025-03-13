@@ -221,6 +221,9 @@ public class Auto {
             )
         );
 
+        midFromMid.done().onTrue(midToScore.cmd());
+        midToScore.done().onTrue(midScoreToAlgae.cmd());    
+
         midFromMid.atTime("slowHold")
             .onTrue(claw.slowHold);
 

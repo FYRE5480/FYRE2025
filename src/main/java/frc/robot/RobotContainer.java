@@ -5,6 +5,7 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -101,6 +102,8 @@ public class RobotContainer {
 
         // Configure the trigger bindings
         configureBindings();
+
+        CameraServer.startAutomaticCapture();
     }
 
     /**
