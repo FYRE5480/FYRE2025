@@ -221,7 +221,7 @@ public final class Constants {
     public static class VisionConstants {
         public static final String ipAddress = "ws://10.54.80.123";
         public static final int[] CameraRotations = {0, 0, 0};
-        public static final String[] tagIDs = {"1", "2", "12", "13", "6", "7", "8", "9", "10", "11", "17", "18", "19", "20", "21", "22"};
+        public static final String[] tagIDs = {"6", "7", "8", "9", "10", "11", "17", "18", "19", "20", "21", "22"};
         public static HashMap<String, Integer> apriltagAngles = new HashMap<>();
         public static final double maxIntakeAngle = Math.PI/6;
         public static final double misallignedPieceOffset = Math.PI/12; // This is the angle to go at when the piece is misaligned and 1m away. It will be adjusted automatically for different angles.
@@ -251,7 +251,9 @@ public final class Constants {
         public static final double timeout = 0.5;
         public static final double noTagDecay = 0.95;
 
-        public static final int maxFrameRate = 30000000;
+        public static final int maxFrameRate = 3000;
+
+        public static final double visionThrottle = 0.4; // Like 2nd gear
 
         public static final int numExpectedCams = 2;
 
