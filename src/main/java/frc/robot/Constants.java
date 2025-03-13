@@ -228,9 +228,9 @@ public final class Constants {
         public static final int pieceDetectionCamIndex = 0; // Default camera index for piece detection
 
         // Positive x is away from reef, positive y is to left of reef
-        public static Vision.RobotPositionOffset straightOffset = new Vision.RobotPositionOffset(0.25, 0, 0);
+        public static Vision.RobotPositionOffset straightOffset = new Vision.RobotPositionOffset(0.038, 0.2, 0.1);
         public static Vision.RobotPositionOffset leftOffset = new Vision.RobotPositionOffset(0.25, 0.08, 0); // 0.25, 0.08, 0
-        public static Vision.RobotPositionOffset rightOffset = new Vision.RobotPositionOffset(0.25, -0.2, 0);
+        public static Vision.RobotPositionOffset rightOffset = new Vision.RobotPositionOffset(0.38, -0.1, 0.1);
 
         public static double CoralYOffset = 0;
         public static double CoralXOffset = 0;
@@ -248,12 +248,12 @@ public final class Constants {
         public static final double angleTollerance = 2 * 0.01745329; // The last constant is degrees to radians, so you would do like 5 * 0.0174... for 5 deg
         public static final double distanceTollerance = 2 * 0.0254; // inches to meters
 
-        public static final double timeout = 0.5;
-        public static final double noTagDecay = 0.95;
+        public static final double timeout = 0.01;
+        public static final double noTagDecay = 0.8;
 
-        public static final int maxFrameRate = 3000;
+        public static final int maxFrameRate = 60;
 
-        public static final double visionThrottle = 0.4; // Like 2nd gear
+        public static final double visionThrottle = 0.1; // Like 2nd gear
 
         public static final int numExpectedCams = 2;
 
