@@ -46,76 +46,76 @@ public class Auto {
 
         AutoRoutine fromLeft = autoFactory.newRoutine("fromLeft");
 
-        AutoTrajectory midFromLeft = fromLeft.trajectory("midFromLeft");
-        AutoTrajectory midToScore = fromLeft.trajectory("midToScore");
-        AutoTrajectory scoreToCoral = fromLeft.trajectory("leftScoreToAlgae");
-        AutoTrajectory alg2 = fromLeft.trajectory("alg2-test");
+        AutoTrajectory startLeft = fromLeft.trajectory("startLeft");
+        AutoTrajectory leftToScore = fromLeft.trajectory("leftToScore");
+        AutoTrajectory leftScoreToAlgae = fromLeft.trajectory("leftScoreToAlgae");
+        AutoTrajectory leftAlg2 = fromLeft.trajectory("leftAlg2");
 
         // update current pose of robot to starting point of first trajectory
-        if (midFromLeft.getInitialPose().isEmpty()) {
+        if (startLeft.getInitialPose().isEmpty()) {
             Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Autonomous", "Could not get initial pose from trajectory!"));
         } else {
-            swerve.setPose(midFromLeft.getInitialPose().get());
+            swerve.setPose(startLeft.getInitialPose().get());
         }
 
         fromLeft.active().onTrue(
             Commands.sequence(
-                midFromLeft.resetOdometry(),
-                midFromLeft.cmd()
+                startLeft.resetOdometry(),
+                startLeft.cmd()
             )
         );
 
-        midFromLeft.done().onTrue(midToScore.cmd());
-        midToScore.done().onTrue(scoreToCoral.cmd());
-        scoreToCoral.done().onTrue(alg2.cmd());
+        startLeft.done().onTrue(leftToScore.cmd());
+        leftToScore.done().onTrue(leftScoreToAlgae.cmd());
+        leftScoreToAlgae.done().onTrue(leftAlg2.cmd());
 
 
-        alg2.atTime("spit")
+        leftAlg2.atTime("spit")
             .onTrue(claw.output);
 
-        alg2.atTime("suck")
+        leftAlg2.atTime("suck")
             .onTrue(claw.intake);
 
-        alg2.atTime("up")
+        leftAlg2.atTime("up")
             .onTrue(elevator.goToBottom)
             .onTrue(arm.goToUpperAlgae);
 
 
-        alg2.atTime("down")
+        leftAlg2.atTime("down")
             .onTrue(elevator.goToBottom)
-            .onTrue(claw.stopWheels );
+            .onTrue(claw.stopWheels);
+
+        leftAlg2.atTime("barge")
+            .onTrue(elevator.goToTop)
+            .onTrue(arm.goToBarge);
 
         // the following code causes arm.goToBottom to run many, many times
-        // alg2.atTime("asdf")
+        // leftAlg2.atTime("asdf")
         //     .onTrue(elevator.goToBottom)
         //     .onTrue(arm.goToBottom);
 
-        midFromLeft.atTime("slowSuck")
+        startLeft.atTime("slowSuck")
             .onTrue(claw.slowHold);
 
-        midToScore.atTime("goToScore")
+        leftToScore.atTime("goToScore")
             .onTrue(elevator.goToTop)
             .onTrue(arm.goToCoral);
 
-        midToScore.atTime("spit")
+        leftToScore.atTime("spit")
             .onTrue(claw.output);
 
-        midToScore.atTime("goDown")
+        leftToScore.atTime("goDown")
             .onTrue(elevator.goToMid)
             .onTrue(arm.goToLowerAlgae);
 
-        scoreToCoral.atTime("suck")
+        leftScoreToAlgae.atTime("suck")
             .onTrue(claw.intake);
 
-        scoreToCoral.atTime("goToAlgae")
-            .onTrue(elevator.goToMid)
-            .onTrue(arm.goToLowerAlgae);
-
-        scoreToCoral.atTime("lower")
-            .onTrue(elevator.goToBottom)
-            .onTrue(arm.goToBottom);
+        leftScoreToAlgae.atTime("up")
+            .onTrue(elevator.goToTop)
+            .onTrue(arm.goToBarge);
     
-        scoreToCoral.atTime("spit")
+        leftScoreToAlgae.atTime("spit")
             .onTrue(claw.output);
     
         return fromLeft;
@@ -175,7 +175,7 @@ public class Auto {
 
         AutoTrajectory midFromMid = fromMid.trajectory("midFromMid");
         AutoTrajectory midToScore = fromMid.trajectory("midToScore");
-        AutoTrajectory scoreToCoral = fromMid.trajectory("scoreToCoral");
+        AutoTrajectory midScoreToAlgae = fromMid.trajectory("midScoreToAlgae");
 
         // update current pose of robot to starting point of first trajectory
         if (midFromMid.getInitialPose().isEmpty()) {
@@ -191,22 +191,30 @@ public class Auto {
             )
         );
 
+        midFromMid.atTime("slowHold")
+            .onTrue(claw.slowHold);
+
         midToScore.atTime("goToScore")
-            .onTrue(elevator.goToMid)
-            .onTrue(arm.goToLowerAlgae);
+            .onTrue(elevator.goToTop)
+            .onTrue(arm.goToCoral);
 
         midToScore.atTime("spit")
             .onTrue(claw.output);
 
-        scoreToCoral.atTime("goToAlgae")
-            .onTrue(elevator.goToMid)
-            .onTrue(arm.goToLowerAlgae);
-
-        scoreToCoral.atTime("lower")
+        midToScore.atTime("goToAlgae")
             .onTrue(elevator.goToBottom)
-            .onTrue(arm.goToBottom);
+            .onTrue(arm.goToUpperAlgae);
+
     
-        scoreToCoral.atTime("spit")
+        midScoreToAlgae.atTime("suck")
+            .onTrue(claw.intake);
+
+
+        midScoreToAlgae.atTime("goToBarge")
+            .onTrue(elevator.goToTop)
+            .onTrue(arm.goToBarge);
+        
+        midScoreToAlgae.atTime("spit")
             .onTrue(claw.output);
     
         return fromMid;
