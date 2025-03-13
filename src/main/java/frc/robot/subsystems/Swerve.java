@@ -161,9 +161,17 @@ public class Swerve extends SubsystemBase {
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleState, DriveConstants.highDriveSpeed);
 
+        double throttle = controllerInput.throttle();
+        boolean nos = controllerInput.nos();
+        
+        if (controllerInput.visionStatus() != VisionStatus.NONE) {
+            throttle = VisionConstants.visionThrottle;
+            nos = false;
+        }
+
         for (int i = 0; i < 4; i++) {
             SwerveModuleState targetState = moduleState[i];
-            swerveModules[i].driveModule(targetState, rotate, controllerInput.nos(), controllerInput.throttle());
+            swerveModules[i].driveModule(targetState, rotate, nos, throttle);
         }
     }
 
