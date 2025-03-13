@@ -41,6 +41,30 @@ public class Auto {
         );
     }
 
+    public AutoRoutine leave() {
+        DataLogManager.log("Starting Auto Routine: leave");
+
+        AutoRoutine leave = autoFactory.newRoutine("leave");
+
+        AutoTrajectory leaveTraj = leave.trajectory("leave");
+
+        // update current pose of robot to starting point of first trajectory
+        if (leaveTraj.getInitialPose().isEmpty()) {
+            Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Autonomous", "Could not get initial pose from trajectory!"));
+        } else {
+            swerve.setPose(leaveTraj.getInitialPose().get());
+        }
+
+        leave.active().onTrue(
+            Commands.sequence(
+                leaveTraj.resetOdometry(),
+                leaveTraj.cmd()
+            )
+        );
+
+        return leave;
+    }
+
     public AutoRoutine fromLeft() {
         DataLogManager.log("Starting Auto Routine: fromLeft");
 
