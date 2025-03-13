@@ -77,8 +77,8 @@ public class Auto {
             .onTrue(claw.intake);
 
         leftAlg2.atTime("up")
-            .onTrue(elevator.goToBottom)
-            .onTrue(arm.goToUpperAlgae);
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
 
 
         leftAlg2.atTime("down")
@@ -105,8 +105,8 @@ public class Auto {
             .onTrue(claw.output);
 
         leftToScore.atTime("goDown")
-            .onTrue(elevator.goToMid)
-            .onTrue(arm.goToLowerAlgae);
+            .onTrue(elevator.goToBottom)
+            .onTrue(arm.goToUpperAlgae);
 
         leftScoreToAlgae.atTime("suck")
             .onTrue(claw.intake);
@@ -126,43 +126,49 @@ public class Auto {
 
         AutoRoutine fromRight = autoFactory.newRoutine("fromRight");
 
-        AutoTrajectory midFromRight = fromRight.trajectory("midFromRight");
-        AutoTrajectory midToScore = fromRight.trajectory("midToScore");
-        AutoTrajectory scoreToCoral = fromRight.trajectory("scoreToCoral");
+        AutoTrajectory startRight = fromRight.trajectory("startRight");
+        AutoTrajectory rightToScore = fromRight.trajectory("rightToScore");
+        AutoTrajectory rightScoreToAlgae = fromRight.trajectory("rightScoreToAlgae");
 
         // update current pose of robot to starting point of first trajectory
-        if (midFromRight.getInitialPose().isEmpty()) {
+        if (startRight.getInitialPose().isEmpty()) {
             Elastic.sendNotification(new Elastic.Notification(Elastic.Notification.NotificationLevel.WARNING, "Autonomous", "Could not get initial pose from trajectory!"));
         } else {
-            swerve.setPose(midFromRight.getInitialPose().get());
+            swerve.setPose(startRight.getInitialPose().get());
         }
 
         fromRight.active().onTrue(
             Commands.sequence(
-                midFromRight.resetOdometry(),
-                midFromRight.cmd()
+                startRight.resetOdometry(),
+                startRight.cmd()
             )
         );
 
-        midFromRight.done().onTrue(midToScore.cmd());
-        midToScore.done().onTrue(scoreToCoral.cmd());
+        startRight.done().onTrue(rightToScore.cmd());
+        rightToScore.done().onTrue(rightScoreToAlgae.cmd());
 
-        midToScore.atTime("goToScore")
+        startRight.atTime("slowHold")
+            .onTrue(claw.slowHold);
+
+        rightToScore.atTime("spit")
+            .onTrue(claw.output);
+
+        rightToScore.atTime("goToScore")
             .onTrue(elevator.goToTop)
             .onTrue(arm.goToCoral);
 
-        midToScore.atTime("spit")
-            .onTrue(claw.output);
+        rightToScore.atTime("goToAlgae")
+            .onTrue(elevator.goToBottom)    
+            .onTrue(arm.goToUpperAlgae);
 
-        scoreToCoral.atTime("goToAlgae")
-            .onTrue(elevator.goToMid)
-            .onTrue(arm.goToLowerAlgae);
+        rightScoreToAlgae.atTime("suck")
+            .onTrue(claw.intake);
 
-        scoreToCoral.atTime("lower")
-            .onTrue(elevator.goToBottom)
-            .onTrue(arm.goToBottom);
-    
-        scoreToCoral.atTime("spit")
+        rightScoreToAlgae.atTime("goToBarge")
+            .onTrue(elevator.goToTop)
+            .onTrue(arm.goToBarge);
+
+        rightScoreToAlgae.atTime("spit")
             .onTrue(claw.output);
     
         return fromRight;
@@ -173,7 +179,7 @@ public class Auto {
 
         AutoRoutine fromMid = autoFactory.newRoutine("fromMid");
 
-        AutoTrajectory midFromMid = fromMid.trajectory("midFromMid");
+        AutoTrajectory midFromMid = fromMid.trajectory("startMid");
         AutoTrajectory midToScore = fromMid.trajectory("midToScore");
         AutoTrajectory midScoreToAlgae = fromMid.trajectory("midScoreToAlgae");
 
@@ -202,8 +208,8 @@ public class Auto {
             .onTrue(claw.output);
 
         midToScore.atTime("goToAlgae")
-            .onTrue(elevator.goToBottom)
-            .onTrue(arm.goToUpperAlgae);
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
 
     
         midScoreToAlgae.atTime("suck")
