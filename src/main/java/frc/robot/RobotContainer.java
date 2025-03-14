@@ -177,7 +177,7 @@ public class RobotContainer {
 
         joystick.button(10)
             .onTrue(armControl.goToBottom)
-            .onTrue(elevatorControl.goToTop);
+            .onTrue(elevatorControl.goToSemiTop);
         
         joystick.button(11)
             .onTrue(elevatorControl.goToMid)

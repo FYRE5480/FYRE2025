@@ -145,6 +145,7 @@ public final class Constants {
     public static class ElevatorLiftConstants {
         public static final int elevatorMotorPort = 11;
         public static final double rotationsToTop = 7.85;
+        public static final double rotationToSemiTop = 7.2;
         public static final double rotationsToMid = 4.5;
         public static final double staticGain = 0.50;
         public static final double gravityGain = 0.71;
@@ -183,7 +184,7 @@ public final class Constants {
 
         public static final double coralState = 0.5035;
         public static final double lowerAlgaeState = 0.085;
-        public static final double upperAlgaeState = 0.59;
+        public static final double upperAlgaeState = 0.585;
         public static final double bargeState = 0.38;
 
         public static final double maxVelocity = 40;

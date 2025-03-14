@@ -46,6 +46,11 @@ public class Elevator extends SubsystemBase {
         0,
         0
     );
+    
+    private TrapezoidProfile.State semiTop = new TrapezoidProfile.State(
+        ElevatorLiftConstants.rotationToSemiTop,
+        0
+    );
 
     private TrapezoidProfile.State middleState = new TrapezoidProfile.State(
         ElevatorLiftConstants.rotationsToMid,
@@ -129,6 +134,11 @@ public class Elevator extends SubsystemBase {
     //sets the goal to the top state of the elevator
     public void goToTop() {
         controller.setGoal(topState);
+        manualOverride = false;
+    }
+
+    public void goToSemiTop() {
+        controller.setGoal(semiTop);
         manualOverride = false;
     }
 
