@@ -129,15 +129,18 @@ public class Elevator extends SubsystemBase {
     //sets the goal to the top state of the elevator
     public void goToTop() {
         controller.setGoal(topState);
+        manualOverride = false;
     }
 
     public void goToMid() {
         controller.setGoal(middleState);
+        manualOverride = false;
     }
     
     //sets the goal to the bottom state of the elevator
     public void goToBottom() {
         controller.setGoal(bottomState);
+        manualOverride = false;
     }
 
     public double getEncoderDistances() {
@@ -152,22 +155,16 @@ public class Elevator extends SubsystemBase {
      * Runs the motor forward or "up" at the given constant speed.
      */
     public void runMotorForward() {
-        if (canMoveUp) {
-            elevatorMotor.set(ElevatorLiftConstants.elvevatorThrottle);
-        } else {
-            elevatorMotor.stopMotor();
-        }
+        elevatorMotor.set(ElevatorLiftConstants.elvevatorThrottle);
+        manualOverride = true;
     }
 
     /**
      * Runs the motor backward or "down" at the given constant speed.
      */
     public void runMotorBackward() {
-        if (canMoveDown) {
-            elevatorMotor.set(-ElevatorLiftConstants.elvevatorThrottle);
-        } else {
-            elevatorMotor.stopMotor();
-        }
+        elevatorMotor.set(-ElevatorLiftConstants.elvevatorThrottle);
+        manualOverride = true;
     }
 
     /**

@@ -103,7 +103,7 @@ public class RobotContainer {
         // Configure the trigger bindings
         configureBindings();
 
-        CameraServer.startAutomaticCapture();
+        //CameraServer.startAutomaticCapture();
     }
 
     /**
@@ -205,6 +205,14 @@ public class RobotContainer {
         joystick.povDown()
             .onTrue(armControl.runMotorBackward)
             .onFalse(armControl.stopMotors);
+
+        joystick.povRight()
+            .onTrue(elevatorControl.runMotorForward)
+            .onFalse(elevatorControl.stopMotors);
+
+        joystick.povLeft()
+            .onTrue(elevatorControl.runMotorReverse)
+            .onFalse(elevatorControl.stopMotors);
 
         // joystick.button(10)
         //     .onTrue(armControl.goToTop);
