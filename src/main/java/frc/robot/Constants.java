@@ -249,7 +249,7 @@ public final class Constants {
         public static final double angleTollerance = 2 * 0.01745329; // The last constant is degrees to radians, so you would do like 5 * 0.0174... for 5 deg
         public static final double distanceTollerance = 2 * 0.0254; // inches to meters
 
-        public static final double timeout = 0.01;
+        public static final double timeout = 0.1;
         public static final double noTagDecay = 0.8;
 
         public static final int maxFrameRate = 60;
