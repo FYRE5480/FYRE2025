@@ -1,5 +1,5 @@
 {
- "name":"figure8",
+ "name":"comp",
  "version":1,
  "type":"Swerve",
  "variables":{
@@ -9,35 +9,35 @@
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"10.75 in",
-    "val":0.27305
+    "exp":"11 in",
+    "val":0.2794
    },
    "y":{
-    "exp":"10.75 in",
-    "val":0.27305
+    "exp":"11 in",
+    "val":0.2794
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-10.75 in",
-    "val":-0.27305
+    "exp":"-11 in",
+    "val":-0.2794
    },
    "y":{
-    "exp":"10.75 in",
-    "val":0.27305
+    "exp":"11 in",
+    "val":0.2794
    }
   },
   "mass":{
-   "exp":"50 lbs",
-   "val":22.6796185
+   "exp":"150 lbs",
+   "val":68.0388555
   },
   "inertia":{
    "exp":"6 kg m ^ 2",
    "val":6.0
   },
   "gearing":{
-   "exp":"8.14",
-   "val":8.14
+   "exp":"6.5",
+   "val":6.5
   },
   "radius":{
    "exp":"2 in",

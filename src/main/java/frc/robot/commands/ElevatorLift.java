@@ -33,6 +33,14 @@ public class ElevatorLift extends Command {
         elevator.goToTop();
     });
 
+    public Command goToSemiTop = Commands.runOnce(() -> {
+        elevator.goToSemiTop();
+    });
+
+    public Command goToMid = Commands.runOnce(() -> {
+        elevator.goToMid();
+    });
+
     /**
      * Sends the elevator to the bottom using PID.
      */

@@ -6,8 +6,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.DriverConstants;
+import frc.robot.Constants.DriveConstants;
 
 /**
  * A controller object to handle everything involving user input.
@@ -17,29 +18,36 @@ public class ControllerInput extends SubsystemBase {
     /** Enumeration to represent what the robot should be doing with vision. */
     public enum VisionStatus {
         NONE,
-        ALIGN_TAG,
+        LEFT_POSITION,
+        RIGHT_POSITION,
+        STRAIGHT_POSITION,
         LOCKON,
-        GET_CORAL
+        CORAL,
     }
 
-    private double x, y, theta;
+    private double x, y, theta, slider;
+
+    private double throttle = 1.0;
 
     // enables / disables "full throttle" on the drive wheels
     private boolean nos;
 
     private boolean fieldRelative = true;
-    private boolean alignWithTag;
-    private boolean lockOn;
+    private boolean leftBumper;
+    private boolean rightBumper;
+    private boolean coral = false;
 
     private VisionStatus visionStatus;
 
     private CommandXboxController controller;
+    private CommandJoystick joystick;
 
     // the angle the robot should try to face
     private double turnTarget = 0;
   
-    public ControllerInput(CommandXboxController controller) {
+    public ControllerInput(CommandXboxController controller, CommandJoystick joystick) {
         this.controller = controller;
+        this.joystick = joystick;
         this.visionStatus = VisionStatus.NONE;
     }
 
@@ -62,17 +70,20 @@ public class ControllerInput extends SubsystemBase {
             theta = 0;
         }
 
-        // NOS :)
-        nos = controller.getRightTriggerAxis() > 0.75;
-
-        // field relative :)
-        //fieldRelative = !controller.getRightBumperButton();
-
-        // This is just a basic thing - we can make it more complex if we want for auto or smth
-
-        if (alignWithTag) visionStatus = VisionStatus.ALIGN_TAG;
-        else if (lockOn) visionStatus = VisionStatus.LOCKON;
+        slider = (joystick.getRawAxis(3) + 1) / 2;
+        
+        if (leftBumper && rightBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
+        else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
+        else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
         else visionStatus = VisionStatus.NONE;
+
+        // rightBumper && leftBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
+        // else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
+        // else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
+    }
+
+    public void setTurnTarget(double target) {
+        turnTarget = target;
     }
 
     /**
@@ -84,10 +95,10 @@ public class ControllerInput extends SubsystemBase {
         double turnSpeed = 0;
 
         if (Math.abs(theta) > 0.05) {
-            turnTarget = currentAngle.getDegrees() + -theta * 30;
+            turnTarget = currentAngle.getRadians() - (theta * (Math.sqrt(throttle)));
         }
 
-        turnSpeed = turnPID.calculate(currentAngle.getDegrees(), turnTarget);
+        turnSpeed = turnPID.calculate(currentAngle.getRadians(), turnTarget);
 
         ChassisSpeeds chassisSpeeds;
 
@@ -114,18 +125,43 @@ public class ControllerInput extends SubsystemBase {
         nos = !nos;
     });
 
+    public Command upShift = Commands.runOnce(() -> {
+        throttle += 0.2;
+        if (throttle > 1)
+            throttle = 1;
+
+    });
+
+    public Command downShift = Commands.runOnce(() -> {
+        throttle -= 0.2;
+        if (throttle < 0)
+            throttle = 0;
+    });
+
     public Command toggleFeildRelative = Commands.runOnce(() -> {
         fieldRelative = !fieldRelative;
     });
 
-    public Command toggleAlignTag = Commands.runOnce(() -> {
-        alignWithTag = !alignWithTag;
+    public Command toggleRightBumper = Commands.runOnce(() -> {
+        rightBumper = !rightBumper;
+    });
+
+    public Command toggleLeftBumper = Commands.runOnce(() -> {
+        leftBumper = !leftBumper;
     });
 
     public Command toggleLockOn = Commands.runOnce(() -> {
-        lockOn = !lockOn;
+        // lockOn = !lockOn;
     });
 
+    public Command a = Commands.runOnce(() -> {
+        coral = !coral;
+    });
+
+
     public boolean nos() {return nos;}
+    public double throttle() {return throttle;}
     public VisionStatus visionStatus() {return visionStatus;}
+
+    public double slider() {return slider;}
 }

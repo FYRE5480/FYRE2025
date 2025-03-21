@@ -6,6 +6,8 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 
@@ -15,7 +17,7 @@ import frc.robot.Constants.ClimberConstants;
 public class Climber extends SubsystemBase {
     private final SparkMax climberMotor = new SparkMax(
         ClimberConstants.climberMotorPort, 
-        SparkLowLevel.MotorType.kBrushed
+        SparkLowLevel.MotorType.kBrushless
     );
 
     private final RelativeEncoder climberEncoder = climberMotor.getEncoder();
@@ -27,6 +29,10 @@ public class Climber extends SubsystemBase {
      */
     public Climber() {
         setUpMotor();
+
+        climberMotorConfig
+            .inverted(true)
+            .idleMode(IdleMode.kBrake);
 
         climberMotorConfig.encoder
             .positionConversionFactor(ClimberConstants.motorToClimberRatio)

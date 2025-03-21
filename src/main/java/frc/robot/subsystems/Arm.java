@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -32,11 +33,28 @@ public class Arm extends SubsystemBase {
         ArmConstants.velocityGain
     );
 
-    private double rotationsToTop = ArmConstants.maxRotations;
+    private double coralStat = ArmConstants.coralState;
+    private double lowerAlgaeStat = ArmConstants.lowerAlgaeState;
+    private double upperAlgaeStat = ArmConstants.upperAlgaeState;
+    private double bargeStat = ArmConstants.bargeState;
 
-    // Caden, may need to use something other than trapazoid
-    private TrapezoidProfile.State topState = new TrapezoidProfile.State(
-        rotationsToTop,
+    private TrapezoidProfile.State coralState = new TrapezoidProfile.State(
+        coralStat,
+        0
+    );
+
+    private TrapezoidProfile.State lowerAlgaeState = new TrapezoidProfile.State(
+        lowerAlgaeStat,
+        0
+    );
+
+    private TrapezoidProfile.State upperAlgaeState = new TrapezoidProfile.State(
+        upperAlgaeStat,
+        0
+    );
+
+    private TrapezoidProfile.State bargeState = new TrapezoidProfile.State(
+        bargeStat,
         0
     );
     
@@ -44,7 +62,7 @@ public class Arm extends SubsystemBase {
     
     private TrapezoidProfile.State bottomState = new TrapezoidProfile.State(
         0,
-        0
+        0.0
     );
 
     private boolean manualOverride = false;
@@ -66,27 +84,34 @@ public class Arm extends SubsystemBase {
      */
     public Arm() {
         setUpMotors();
-        armMotor.configure(
-            armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);    
     }
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
         // check if the controller is not yet at it's goal and the manual override is not active
-        if (!(armController.atGoal() || manualOverride)) { 
+        if (!(manualOverride)) {    
             // set the setpoint to the controller
-            armMotor.set(
+            armMotor.setVoltage(
+                // armFeedForward.calculate(
+                //     getEncoderDistance(),
+                //     armController.getGoal().position)
                 armController.calculate(
                     getEncoderDistance(),
                     armController.getGoal()
                 )
             );
+        } else {
+            //armMotor.set(0);
         }
+
     }
 
     private void setUpMotors() {
         resetEncoders();
+
+        armMotorConfig
+            .inverted(false);
 
         armMotorConfig.encoder
             .positionConversionFactor(ArmConstants.motorToArmRatio)
@@ -97,13 +122,54 @@ public class Arm extends SubsystemBase {
 
     }
 
-    public void goToTop() {
-        armController.setGoal(topState);
+    public void goToCoral() {
+        armController.setGoal(coralState);
+        manualOverride = false;
+    }
+
+    public void goToLowerAlgae() {
+        armController.setGoal(lowerAlgaeState);
+        manualOverride = false;
+    }
+
+    public void goToUpperAlgae() {
+        armController.setGoal(upperAlgaeState);
+        manualOverride = false;
+    }
+
+    public void goToBarge() {
+        armController.setGoal(bargeState);
+        manualOverride = false;
     }
     
     //sets the goal to the bottom state of the arm
     public void goToBottom() {
         armController.setGoal(bottomState);
+        manualOverride = false;
+    }
+    
+    /**
+     * Runs the motor forward or "up" at the given constant speed.
+     */
+    public void runMotorForward() {
+        if (canMoveUp) {
+            armMotor.set(ArmConstants.armThrottle);
+            manualOverride = true;
+        } else {
+            armMotor.set(0.1 * Math.cos(Units.rotationsToRadians(armEncoder.getPosition())));
+        }
+    }
+
+    /**
+     * Runs the motor backward or "down" at the given constant speed.
+     */
+    public void runMotorBackward() {
+        if (canMoveDown) {
+            armMotor.set(-ArmConstants.armThrottle);
+            manualOverride = true;
+        } else {
+            armMotor.set(0.1 * Math.cos(Units.rotationsToRadians(armEncoder.getPosition())));
+        }
     }
 
     public void stopMotor() {
@@ -118,23 +184,6 @@ public class Arm extends SubsystemBase {
         armEncoder.setPosition(0.0);
     }
 
-    /**
-     * Returns the top state of the arm.
-
-     * @return topState - the top state of the arm
-     */
-    public TrapezoidProfile.State getUpState() {
-        return topState;
-    }
-
-    /**
-     * Returns the bottoms state of the arm.
-
-     * @return bottomState - the bottom state of the arm
-     */
-    public TrapezoidProfile.State getDownState() {
-        return bottomState;
-    }
 
     /**
      * Toggles the manaul ovrride control of the arm.
@@ -163,5 +212,9 @@ public class Arm extends SubsystemBase {
     protected double getMeasurement() {
         // possibly add an offset here? 
         return getEncoderDistance();
+    }
+
+    public boolean atGoal() {
+        return armController.atGoal();
     }
 }

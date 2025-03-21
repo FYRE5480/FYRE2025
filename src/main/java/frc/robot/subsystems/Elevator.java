@@ -46,6 +46,17 @@ public class Elevator extends SubsystemBase {
         0,
         0
     );
+    
+    private TrapezoidProfile.State semiTop = new TrapezoidProfile.State(
+        ElevatorLiftConstants.rotationToSemiTop,
+        0
+    );
+
+    private TrapezoidProfile.State middleState = new TrapezoidProfile.State(
+        ElevatorLiftConstants.rotationsToMid,
+        0
+    );
+
     private TrapezoidProfile.State topState = new TrapezoidProfile.State(
         rotationsToTop,
         0
@@ -81,20 +92,37 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         // check if the controller is not yet at it's goal and the manual override is not active
-        if (!(controller.atGoal() || manualOverride)) { 
+        if (!(manualOverride)) { 
             // set the setpoint to the controller
-            elevatorMotor.set(
+            elevatorMotor.setVoltage(
+                // elevatorFeedForward.calculate(
+                //     controller.getGoal().velocity) 
                 controller.calculate(
                     getEncoderDistances(),
                     controller.getGoal()
                 )
             );
+        } else {
+            //elevatorMotor.set(0);
+            
         }
+
+        //System.out.println(getEncoderDistances());
+
     }
 
     //sets up the motors at the beginning of the program
     private void setUpMotors() {
         resetEncoders();
+        
+        controller.setTolerance(0.05);
+
+        elevatorMotorConfig
+            .inverted(true);
+
+        elevatorMotorConfig.encoder
+            .positionConversionFactor(ElevatorLiftConstants.motorToElevatorRatio)
+            .velocityConversionFactor(ElevatorLiftConstants.motorToElevatorRatio);
 
         elevatorMotor.configure(
             elevatorMotorConfig, 
@@ -106,11 +134,23 @@ public class Elevator extends SubsystemBase {
     //sets the goal to the top state of the elevator
     public void goToTop() {
         controller.setGoal(topState);
+        manualOverride = false;
+    }
+
+    public void goToSemiTop() {
+        controller.setGoal(semiTop);
+        manualOverride = false;
+    }
+
+    public void goToMid() {
+        controller.setGoal(middleState);
+        manualOverride = false;
     }
     
     //sets the goal to the bottom state of the elevator
     public void goToBottom() {
         controller.setGoal(bottomState);
+        manualOverride = false;
     }
 
     public double getEncoderDistances() {
@@ -125,22 +165,16 @@ public class Elevator extends SubsystemBase {
      * Runs the motor forward or "up" at the given constant speed.
      */
     public void runMotorForward() {
-        if (canMoveUp) {
-            elevatorMotor.set(ElevatorLiftConstants.elvevatorThrottle);
-        } else {
-            elevatorMotor.stopMotor();
-        }
+        elevatorMotor.set(ElevatorLiftConstants.elvevatorThrottle);
+        manualOverride = true;
     }
 
     /**
      * Runs the motor backward or "down" at the given constant speed.
      */
     public void runMotorBackward() {
-        if (canMoveDown) {
-            elevatorMotor.set(-ElevatorLiftConstants.elvevatorThrottle);
-        } else {
-            elevatorMotor.stopMotor();
-        }
+        elevatorMotor.set(-ElevatorLiftConstants.elvevatorThrottle);
+        manualOverride = true;
     }
 
     /**

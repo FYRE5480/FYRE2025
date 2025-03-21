@@ -25,6 +25,10 @@ public class ClimberControl extends Command {
     @Override
     public void execute() {}
 
+    public Command sendIt = Commands.runOnce(() -> {
+        climber.climb(1);
+    });
+        
     public Command pinch = Commands.runOnce(() -> {
         climber.climb(ClimberConstants.climberThrottle);
     });
