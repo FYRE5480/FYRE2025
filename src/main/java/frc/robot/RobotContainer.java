@@ -158,41 +158,25 @@ public class RobotContainer {
             .onFalse(clawControl.stopFast);
 
         joystick.button(12)
-            .onTrue(elevatorControl.goToBottom)
-            .onFalse(armControl.goToBottom);
+            .onTrue(elevatorControl.goToBottom);
 
         joystick.button(7)
-            .onTrue(elevatorControl.goToTop)
-            .onTrue(armControl.goToCoral);
-            // .onTrue(elevatorControl.runMotorForward)
-            // .onFalse(elevatorControl.stopMotors);
+            .onTrue(elevatorControl.goToMid);
 
         joystick.button(8)
-            .onTrue(elevatorControl.goToTop)
-            .onTrue(armControl.goToBarge);
+            .onTrue(elevatorControl.goToTop);
         
         joystick.button(9)
-            .onTrue(elevatorControl.goToBottom)
-            .onTrue(armControl.goToCoral);
+            .onTrue(armControl.goToBottom);
 
         joystick.button(10)
-            .onTrue(armControl.goToBottom)
-            .onTrue(elevatorControl.goToSemiTop);
+            .onTrue(armControl.goToCoral);
         
         joystick.button(11)
-            .onTrue(elevatorControl.goToMid)
             .onTrue(armControl.goToLowerAlgae);
-            // .onTrue(elevatorControl.runMotorReverse)
-            // .onFalse(elevatorControl.stopMotors);
 
         joystick.button(5)
             .onTrue(armControl.goToUpperAlgae);
-
-        joystick.button(3)
-            .onTrue(elevatorControl.goToMid)
-            .onTrue(armControl.goToLowerAlgae);
-            // .onTrue(armControl.runMotorBackward)
-            // .onFalse(armControl.stopMotors);
 
         joystick.axisGreaterThan(3, 0.75)
             .whileTrue(clawControl.slowHold)
