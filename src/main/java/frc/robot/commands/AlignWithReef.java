@@ -27,9 +27,9 @@ public class AlignWithReef extends Command {
     @Override
     public void execute() {
         // TODO: use the proper overload of this method
-        currentSpeeds = vision.getTagDrive(1);
+        // currentSpeeds = vision.getTagDrive(1);
 
-        swerve.swerveDrive(currentSpeeds);
+        // swerve.swerveDrive(currentSpeeds);
     }
 
     @Override

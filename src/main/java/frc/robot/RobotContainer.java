@@ -160,22 +160,19 @@ public class RobotContainer {
         joystick.button(12)
             .onTrue(elevatorControl.goToBottom);
 
-        joystick.button(7)
-            .onTrue(elevatorControl.goToMid);
-
         joystick.button(8)
             .onTrue(elevatorControl.goToTop);
         
-        joystick.button(9)
+        joystick.button(11)
             .onTrue(armControl.goToBottom);
 
         joystick.button(10)
-            .onTrue(armControl.goToCoral);
+            .onTrue(elevatorControl.goToMid);
         
-        joystick.button(11)
+        joystick.button(9)
             .onTrue(armControl.goToLowerAlgae);
 
-        joystick.button(5)
+        joystick.button(7)
             .onTrue(armControl.goToUpperAlgae);
 
         joystick.axisGreaterThan(3, 0.75)
